@@ -14,20 +14,21 @@ TODO Screenshot
 
 ## Build and Run
 
-### Linux
 ```
 virtualenv env
-. env/bin/activate
+. env/bin/activate      # (or env\Scripts\activate on Windows)
 pip install -e .
-awslogin sample/SampleServerList.txt
-```
 
-### Windows
-```
-virtualenv env
-env\Scripts\activate
-pip install -e .
-awslogin sample\SampleServerList.txt
+
+# Select which profiles to get credentials
+awslogin [--session-duration <session duration in seconds>] [--keyword <keyword>] [-refresh-cached-roles] [--debug]
+
+# Example: Pre select profiles by the given keywork
+awslogin -k <keyword>
+
+
+# Set the selected profile as default
+awslogin switch
 ```
 
 ## Tox Tests and Build the Wheels
