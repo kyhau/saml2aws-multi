@@ -40,6 +40,17 @@ Commands:
 you provided, then saves the roles to `<user_home>/.saml2aws-multi/aws_login_roles.csv`, such that the
 script does not need to call `list_roles` every time you run `awslogin`.
 
+    For example, if you have role ARNs like:
+    ```
+    RoleArn, AccountAlias
+    arn:aws:iam::123456789012:role/aws-01-dev, aws-01
+    arn:aws:iam::123456789012:role/aws-01-tst, aws-01
+    arn:aws:iam::213456789012:role/aws-02-dev, aws-02
+    arn:aws:iam::313456789012:role/aws-03-dev, aws-03
+    ```
+    Then, the profile names will look like
+    ![Example-RoleName-init](assets/Example-RoleName-init.png)
+
     To refresh the content of `aws_login_roles.csv`, just run
 
     ```
