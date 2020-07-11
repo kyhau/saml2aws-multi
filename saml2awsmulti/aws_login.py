@@ -24,7 +24,7 @@ logging.basicConfig(format="%(message)s")
 logging.getLogger().setLevel(logging.INFO)
 
 AWS_CRED_FILE = join(str(Path.home()), ".aws", "credentials")
-SAML2AWS_CONFIG = join(str(Path.home()), ".saml2aws")
+SAML2AWS_CONFIG_FILE = join(str(Path.home()), ".saml2aws")
 USER_DATA_HOME = join(str(Path.home()), ".saml2aws-multi")
 ALL_ROLES_FILE = join(USER_DATA_HOME, "aws_login_roles.csv")    # role_arn, account_alias
 LAST_SELECTED_FILE = join(USER_DATA_HOME, "aws_login_last_selected.txt")    # aws_profile_name
@@ -77,7 +77,7 @@ def main_cli(keyword, profile_name_format, refresh_cached_roles, session_duratio
         logging.getLogger().setLevel(logging.DEBUG)
     
     try:
-        saml2aws_helper = Saml2AwsHelper(SAML2AWS_CONFIG, session_duration)
+        saml2aws_helper = Saml2AwsHelper(SAML2AWS_CONFIG_FILE, session_duration)
 
         profile_rolearn_dict = create_profile_rolearn_dict(saml2aws_helper, profile_name_format, refresh_cached_roles)
         pre_select_profiles = pre_select_options(profile_rolearn_dict, keyword)
@@ -93,7 +93,7 @@ def main_cli(keyword, profile_name_format, refresh_cached_roles, session_duratio
         else:
             logging.info("Nothing selected. Aborted.")
     except FileNotFoundError as e:
-        if e.filename == SAML2AWS_CONFIG:
+        if e.filename == SAML2AWS_CONFIG_FILE:
             logging.error(f"{e}. See https://github.com/Versent/saml2aws to create one.")
         else:
             logging.error(f"Error: {e} Aborted.")
