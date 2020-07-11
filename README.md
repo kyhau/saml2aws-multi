@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/master/graph/badge.svg)](https://codecov.io/gh/kyhau/saml2aws-multi)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
 
-A helper script provides an easy-to-use command line interface to support login login and retrieve AWS temporary
+A helper script provides an easy-to-use command line interface to support login and retrieve AWS temporary
 credentials for multiple roles of different accounts with saml2aws. 
 
 ![Example-RoleName](assets/Example-RoleName.png)
