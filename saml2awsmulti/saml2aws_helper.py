@@ -46,7 +46,9 @@ class Saml2AwsHelper():
                 roles.append((line, accounts_dict[acc_id]))
         retval = p.wait()
     
-        logging.info(f"Response Code {retval}")
+        logging.debug(f"Response Code: {retval}")
+        if not roles:
+            raise ValueError("Failed to retrieve roles with saml2aws.")
         return roles
 
     def run_saml2aws_login(self, role_arn, profile_name):
@@ -62,6 +64,6 @@ class Saml2AwsHelper():
             logging.debug(line.decode("utf-8").rstrip("\r|\n"))
         retval = p.wait()
         
-        logging.info(f"Response Code {retval}")
+        logging.debug(f"Response Code: {retval}")
         return retval
 

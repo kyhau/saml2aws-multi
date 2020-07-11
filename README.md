@@ -8,9 +8,70 @@
 A helper script provides a easy-to-use command line interface to support login to multiple roles of different
 accounts with saml2aws. 
 
+![Example-RoleName](assets/Example-RoleName.png)
+
 Support Python >= 3.7
 
-TODO Screenshot
+## Usage
+
+```
+$ awslogin --help
+Usage: awslogin [OPTIONS] COMMAND [ARGS]...
+
+  Get credentials for multiple accounts with saml2aws
+
+Options:
+  -k, --keyword TEXT              Pre-select roles with the given keyword(s)
+  -f, --profile-name-format [RoleName|RoleName-AccountAlias]
+                                  Profile name format  [default: RoleName]
+  -r, --refresh-cached-roles      [default: False]
+  -t, --session-duration TEXT     Session duration in seconds
+  -d, --debug                     [default: False]
+  --help                          Show this message and exit.
+
+Commands:
+  switch  Switch default profile
+
+```
+
+### Usage Examples
+
+1. When you run `awslogin` the first time, the script retrieves the roles associated to the username and password
+you provided, then saves the roles to `<user_home>/.saml2aws-multi/aws_login_roles.csv`, such that the
+script does not need to call `list_roles` every time you run `awslogin`.
+
+    To refresh the content of `aws_login_roles.csv`, just run
+
+    ```
+    awslogin --refresh-cached-roles
+    ```
+
+2. When you `awslogin`, the script pre-selects the options you selected last time.
+
+    ![Example-RoleName](assets/Example-RoleName.png)
+    To refresh the content of `aws_login_roles.csv`, just run
+
+3. Use `--keyword` or `-k` to pre-select option by keyword(s).
+
+    ```
+    awslogin -k dev -k tst
+    ```
+
+4. If you have roles in different accounts with the same role names, you can use 
+`--profile-name-format RoleName-AccountAlias`, such that the profile names will include both role name and account
+alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the code to `RoleName-AccountAlias`.
+
+    For example, if you have role ARNs like:
+    ```
+    RoleArn, AccountAlias
+    arn:aws:iam::123456789012:role/dev, aws-01
+    arn:aws:iam::123456789012:role/tst, aws-01
+    arn:aws:iam::213456789012:role/dev, aws-02
+    arn:aws:iam::313456789012:role/dev, aws-03
+    ```
+    Then, the profile names will look like
+    ![Example-RoleName-AccountAlias](assets/Example-RoleName-AccountAlias.png)
+
 
 ## Build and Run
 
@@ -18,17 +79,7 @@ TODO Screenshot
 virtualenv env
 . env/bin/activate      # (or env\Scripts\activate on Windows)
 pip install -e .
-
-
-# Select which profiles to get credentials
-awslogin [--session-duration <session duration in seconds>] [--keyword <keyword>] [-refresh-cached-roles] [--debug]
-
-# Example: Pre select profiles by the given keywork
-awslogin -k <keyword>
-
-
-# Set the selected profile as default
-awslogin switch
+awslogin --help
 ```
 
 ## Tox Tests and Build the Wheels

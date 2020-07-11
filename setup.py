@@ -14,7 +14,7 @@ __requirements__ = [
 
 __entry_points__ = {
     "console_scripts": [
-        "awslogin = saml2awsmulti.aws_login:main",
+        "awslogin = saml2awsmulti.aws_login:main_cli",
     ]
 }
 

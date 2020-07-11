@@ -17,7 +17,7 @@ def read_csv(filename, delimiter=","):
         reader = csv.reader(csvfile, delimiter=delimiter)
         for row in reader:
             if row and not row[0].startswith("#"):
-                yield row
+                yield list(map(str.strip, row))
 
 
 def read_lines_from_file(filename):

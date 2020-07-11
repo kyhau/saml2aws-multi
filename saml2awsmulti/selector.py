@@ -13,6 +13,9 @@ custom_style = style_from_dict({
 
 
 def prompt_profile_selection(options):
+    if not options:
+        raise ValueError("No profiles retrieved for selection.")
+
     questions = [{
         "choices": options,
         "message": "Please choose the profile",
@@ -23,6 +26,9 @@ def prompt_profile_selection(options):
 
 
 def prompt_roles_selection(options, last_selected_options):
+    if not options:
+        raise ValueError("No roles retrieved for selection.")
+
     questions = [{
         "choices": [dict({
             "name": role,
