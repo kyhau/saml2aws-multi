@@ -46,7 +46,7 @@ script does not need to call `list_roles` every time you run `awslogin`.
     awslogin --refresh-cached-roles
     ```
 
-2. When you `awslogin`, the script pre-selects the options you selected last time.
+2. When you run `awslogin`, the script pre-selects the options you selected last time.
 
     ![Example-RoleName](assets/Example-RoleName.png)
     To refresh the content of `aws_login_roles.csv`, just run
