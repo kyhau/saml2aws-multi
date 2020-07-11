@@ -57,7 +57,13 @@ script does not need to call `list_roles` every time you run `awslogin`.
     awslogin -k dev -k tst
     ```
 
-4. If you have roles in different accounts with the same role names, you can use 
+4. To change your `default` profile in `<user_home>/.aws/credentials`, run
+
+    ```
+    awslogin switch
+    ```
+
+5. If you have roles in different accounts with the same role names, you can use 
 `--profile-name-format RoleName-AccountAlias`, such that the profile names will include both role name and account
 alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the code to `RoleName-AccountAlias`.
 
