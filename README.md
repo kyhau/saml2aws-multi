@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
 
 A helper script provides an easy-to-use command line interface to support login and retrieve AWS temporary
-credentials for multiple roles of different accounts with [saml2aws](https://github.com/Versent/saml2aws). 
+credentials for multiple roles of different accounts with [saml2aws](https://github.com/Versent/saml2aws).
 
 ![Example-RoleName](assets/Example-RoleName.png)
 
@@ -92,6 +92,13 @@ alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the 
 
 ## Build and Run
 
+1. Install [saml2aws](https://github.com/Versent/saml2aws). See also
+   [install_saml2aws.sh](install_saml2aws.sh) for Linux, or 
+   [Install-saml2aws.ps1](Install-saml2aws.ps1) for Windows.
+
+2. Create `saml2aws` config file (`~/.saml2aws`) by running `saml2aws configure`.
+
+3. Build and run
 ```
 virtualenv env
 . env/bin/activate      # (or env\Scripts\activate on Windows)
