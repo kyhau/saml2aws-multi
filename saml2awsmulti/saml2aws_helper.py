@@ -64,6 +64,6 @@ class Saml2AwsHelper():
             logging.debug(line.decode("utf-8").rstrip("\r|\n"))
         retval = p.wait()
         
-        logging.debug(f"Response Code: {retval}")
+        logging.info(f"Response Code: {retval}")
         return retval
 
