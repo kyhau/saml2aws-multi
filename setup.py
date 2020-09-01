@@ -8,6 +8,7 @@ __uri__ = "https://github.com/kyhau/ssllabs-scan"
 __summary__ = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
 
 __requirements__ = [
+    "boto3~=1.14",
     "click~=7.1",
     "PyInquirer~=1.0",
 ]
