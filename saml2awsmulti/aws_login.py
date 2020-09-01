@@ -1,13 +1,14 @@
 """
 A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts.
 """
+import json
 import logging
 from collections import OrderedDict
 from os.path import exists, join
 from pathlib import Path
 
-import boto3
 import click
+from boto3.session import Session
 
 from saml2awsmulti.file_io import (get_aws_profiles, read_csv,
                                    read_lines_from_file, write_aws_profiles,
@@ -105,6 +106,21 @@ def main_cli(ctx, keyword, profile_name_format, refresh_cached_roles, session_du
             traceback.print_exc()
 
 
+@main_cli.command(help="List chained role profiles specified in ~/.aws/config")
+def chained():
+    config = get_aws_profiles(AWS_CONF_FILE)
+    profiles = [
+        profile.replace("profile ", "") for profile in config.sections()
+        if config[profile].get("source_profile") and config[profile].get("role_arn")
+    ]
+
+    logging.info(f"Found {len(profiles)} chained role profiles")
+    cnt = 1
+    for profile in profiles:
+        logging.info(f"{cnt}: {profile}")
+        cnt += 1
+
+
 @main_cli.command(help="Switch default profile")
 def switch():
     cred_config = get_aws_profiles(AWS_CRED_FILE)
@@ -123,8 +139,14 @@ def switch():
 
 
 @main_cli.command(help="Who am I?")
-def whoami():
-    print(boto3.client("sts").get_caller_identity()["Arn"])
+@click.option("--profile", "-p", default="default", show_default=True, help="Profile name")
+def whoami(profile):
+    try:
+        resp = Session(profile_name=profile).client("sts").get_caller_identity()
+        del resp["ResponseMetadata"]
+        print(json.dumps(resp, indent=2, sort_keys=True))
+    except Exception as e:
+        logging.error(e)
 
 
 if __name__ == "__main__":

@@ -30,8 +30,9 @@ Options:
   --help                          Show this message and exit.
 
 Commands:
-  switch  Switch default profile
-  whoami  Who am I?
+  chained  List chained role profiles specified in ~/.aws/config
+  switch   Switch default profile
+  whoami   Who am I?
 
 ```
 
