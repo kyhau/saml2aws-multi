@@ -1,5 +1,4 @@
-from PyInquirer import prompt, style_from_dict, Token
-
+from PyInquirer import Token, prompt, style_from_dict
 
 custom_style = style_from_dict({
     Token.Separator: "#6C6C6C",
@@ -38,4 +37,4 @@ def prompt_roles_selection(options, last_selected_options):
         "name": "roles",
         "type": "checkbox",
     }]
-    return prompt(questions, last_selected_options, style=custom_style)
+    return prompt(questions, style=custom_style)

@@ -1,7 +1,7 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 __title__ = "saml2awsmulti"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Kay Hau"
 __email__ = "virtualda@gmail.com"
 __uri__ = "https://github.com/kyhau/ssllabs-scan"

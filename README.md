@@ -1,7 +1,7 @@
 # saml2aws-multi
 
 [![githubactions](https://github.com/kyhau/saml2aws-multi/workflows/Build-Test/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions)
-[![travisci](https://travis-ci.org/kyhau/saml2aws-multi.svg?branch=master)](https://travis-ci.org/kyhau/saml2aws-multi) 
+[![travisci](https://travis-ci.org/kyhau/saml2aws-multi.svg?branch=master)](https://travis-ci.org/kyhau/saml2aws-multi)
 [![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/master/graph/badge.svg)](https://codecov.io/gh/kyhau/saml2aws-multi)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
 
@@ -31,6 +31,7 @@ Options:
 
 Commands:
   switch  Switch default profile
+  whoami  Who am I?
 
 ```
 
@@ -74,7 +75,7 @@ script does not need to call `list_roles` every time you run `awslogin`.
     awslogin switch
     ```
 
-5. If you have roles in different accounts with the same role names, you can use 
+5. If you have roles in different accounts with the same role names, you can use
 `--profile-name-format RoleName-AccountAlias`, such that the profile names will include both role name and account
 alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the code to `RoleName-AccountAlias`.
 
@@ -93,7 +94,7 @@ alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the 
 ## Build and Run
 
 1. Install [saml2aws](https://github.com/Versent/saml2aws). See also
-   [install_saml2aws.sh](install_saml2aws.sh) for Linux, or 
+   [install_saml2aws.sh](install_saml2aws.sh) for Linux, or
    [Install-saml2aws.ps1](Install-saml2aws.ps1) for Windows.
 
 2. Create `saml2aws` config file (`~/.saml2aws`) by running `saml2aws configure`.
