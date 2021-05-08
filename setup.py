@@ -8,7 +8,7 @@ __uri__ = "https://github.com/kyhau/saml2aws-multi"
 __summary__ = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
 
 __requirements__ = [
-    "boto3~=1.19",
+    "boto3~=1.17",
     "click~=7.1",
     "PyInquirer~=1.0",
 ]
