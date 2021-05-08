@@ -5,8 +5,7 @@
 [![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/master/graph/badge.svg)](https://codecov.io/gh/kyhau/saml2aws-multi)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
 
-A helper script provides an easy-to-use command line interface to support login and retrieve AWS temporary
-credentials for multiple roles of different accounts with [saml2aws](https://github.com/Versent/saml2aws).
+This is a helper script providing an easy-to-use command line interface to support login and retrieve AWS temporary credentials for multiple roles of different accounts with [saml2aws](https://github.com/Versent/saml2aws).
 
 ![Example-RoleName](assets/Example-RoleName.png)
 
@@ -21,26 +20,34 @@ Usage: awslogin [OPTIONS] COMMAND [ARGS]...
   Get credentials for multiple accounts with saml2aws
 
 Options:
-  -k, --keyword TEXT              Pre-select roles with the given keyword(s)
-  -f, --profile-name-format [RoleName|RoleName-AccountAlias]
-                                  Profile name format  [default: RoleName]
-  -r, --refresh-cached-roles      [default: False]
-  -t, --session-duration TEXT     Session duration in seconds
-  -d, --debug                     [default: False]
+  -l, --shortlisted TEXT          Show only roles with the given keyword(s);
+                                  e.g. -l keyword1 -l keyword2...
+
+  -s, --pre-select TEXT           Pre-select roles with the given keyword(s);
+                                  e.g. -s keyword1 -s keyword2...
+
+  -n, --profile-name-format [RoleName|RoleName-AccountAlias]
+                                  Set the profile name format.  [default:
+                                  RoleName]
+
+  -r, --refresh-cached-roles      Re-retrieve the roles associated to the
+                                  username and password you providedand save
+                                  the roles into <home>/.saml2aws-
+                                  multi/aws_login_roles.csv.  [default: False]
+
+  -t, --session-duration TEXT     Set the session duration in seconds,
+  -d, --debug                     Enable debug mode.  [default: False]
   --help                          Show this message and exit.
 
 Commands:
   chained  List chained role profiles specified in ~/.aws/config
   switch   Switch default profile
   whoami   Who am I?
-
 ```
 
 ### Usage Examples
 
-1. When you run `awslogin` the first time, the script retrieves the roles associated to the username and password
-you provided, then saves the roles to `<user_home>/.saml2aws-multi/aws_login_roles.csv`, such that the
-script does not need to call `list_roles` every time you run `awslogin`.
+1. When you run `awslogin` the first time, the script retrieves the roles associated to the username and password you provided, then saves the roles to `<user_home>/.saml2aws-multi/aws_login_roles.csv`, such that the script does not need to call `list_roles` every time you run `awslogin`.
 
     For example, if you have role ARNs like:
     ```
@@ -64,21 +71,25 @@ script does not need to call `list_roles` every time you run `awslogin`.
     ![Example-RoleName](assets/Example-RoleName.png)
     To refresh the content of `aws_login_roles.csv`, just run
 
-3. Use `--keyword` or `-k` to pre-select option by keyword(s).
+3. Use `--pre-select` or `-s` to pre-select option by keyword(s).
 
     ```
-    awslogin -k dev -k tst
+    awslogin -s dev -s tst
     ```
 
-4. To change your `default` profile in `<user_home>/.aws/credentials`, run
+4. Use `--shortlisted` or `-l` to show the list of roles having profile name matching the given keyword(s).
+
+    ```
+    awslogin -l dev -l tst
+    ```
+
+5. To change your `default` profile in `<user_home>/.aws/credentials`, run
 
     ```
     awslogin switch
     ```
 
-5. If you have roles in different accounts with the same role names, you can use
-`--profile-name-format RoleName-AccountAlias`, such that the profile names will include both role name and account
-alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the code to `RoleName-AccountAlias`.
+6. If you have roles in different accounts with the same role names, you can use `--profile-name-format RoleName-AccountAlias`, such that the profile names will include both role name and account alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the code to `RoleName-AccountAlias`.
 
     For example, if you have role ARNs like:
     ```

@@ -24,8 +24,8 @@ AWS_CONF_FILE = join(str(Path.home()), ".aws", "config")
 AWS_CRED_FILE = join(str(Path.home()), ".aws", "credentials")
 SAML2AWS_CONFIG_FILE = join(str(Path.home()), ".saml2aws")
 USER_DATA_HOME = join(str(Path.home()), ".saml2aws-multi")
-ALL_ROLES_FILE = join(USER_DATA_HOME, "aws_login_roles.csv")    # role_arn, account_alias
-LAST_SELECTED_FILE = join(USER_DATA_HOME, "aws_login_last_selected.txt")    # aws_profile_name
+ALL_ROLES_FILE = join(USER_DATA_HOME, "aws_login_roles.csv")  # role_arn, account_alias
+LAST_SELECTED_FILE = join(USER_DATA_HOME, "aws_login_last_selected.txt")  # aws_profile_name
 
 DEFAULT_PROFILE_NAME_FORMAT = "RoleName"
 PROFILE_NAME_FORMATS = ["RoleName", "RoleName-AccountAlias"]
@@ -39,7 +39,8 @@ def create_profile_name_from_role_arn(role_arn, account_alias, profile_name_form
     return profile_name
 
 
-def create_profile_rolearn_dict(saml2aws_helper, profile_name_format, refresh_cached_roles):
+def create_profile_rolearn_dict(saml2aws_helper, profile_name_format, refresh_cached_roles, keywords):
+    """Create an OrderedDict containing a full or shortlisted of {profile_name: role_arn} """
     if refresh_cached_roles or not exists(ALL_ROLES_FILE):
         rolearn_alias_list = saml2aws_helper.run_saml2aws_list_roles()
         write_csv(ALL_ROLES_FILE, rolearn_alias_list)
@@ -49,18 +50,23 @@ def create_profile_rolearn_dict(saml2aws_helper, profile_name_format, refresh_ca
     profile_rolearn_dict = OrderedDict()
     for role_arn, account_alias in rolearn_alias_list:
         profile_name = create_profile_name_from_role_arn(role_arn, account_alias, profile_name_format)
-        profile_rolearn_dict[profile_name] = role_arn
+
+        # If keywords defined, return only roles with profile_name matching any of the keywords
+        if len(keywords) == 0 or len([keyword for keyword in keywords if keyword in profile_name]) > 0:
+            profile_rolearn_dict[profile_name] = role_arn
+
     return profile_rolearn_dict
 
 
-def pre_select_options(profile_rolearn_dict, keyword):
+def pre_select_options(profile_rolearn_dict, keywords):
+    """Pre-select roles based on keywords"""
     pre_select_profiles = read_lines_from_file(LAST_SELECTED_FILE)
 
     # Make sure the previous selected role is still a valid role
     pre_select_profiles = [p for p in pre_select_profiles if p in profile_rolearn_dict.keys()]
 
     for profile_name, role_arn in profile_rolearn_dict.items():
-        for k in keyword:
+        for k in keywords:
             if k in role_arn:
                 pre_select_profiles.append(profile_name)
                 break
@@ -68,14 +74,21 @@ def pre_select_options(profile_rolearn_dict, keyword):
 
 
 @click.group(invoke_without_command=True, help="Get credentials for multiple accounts with saml2aws")
-@click.option("--keyword", "-k", multiple=True, help="Pre-select roles with the given keyword(s)")
-@click.option("--profile-name-format", "-f", default=DEFAULT_PROFILE_NAME_FORMAT, show_default=True,
-              help="Profile name format", type=click.Choice(PROFILE_NAME_FORMATS, case_sensitive=False))
-@click.option("--refresh-cached-roles", "-r", is_flag=True, show_default=True)
-@click.option("--session-duration", "-t", help="Session duration in seconds")
-@click.option("--debug", "-d", is_flag=True, show_default=True)
+@click.option("--shortlisted", "-l", multiple=True,
+              help="Show only roles with the given keyword(s); e.g. -l keyword1 -l keyword2...")
+@click.option("--pre-select", "-s", multiple=True,
+              help="Pre-select roles with the given keyword(s); e.g. -s keyword1 -s keyword2...")
+@click.option("--profile-name-format", "-n", default=DEFAULT_PROFILE_NAME_FORMAT, show_default=True,
+              help="Set the profile name format.", type=click.Choice(PROFILE_NAME_FORMATS, case_sensitive=False))
+@click.option("--refresh-cached-roles", "-r", is_flag=True, show_default=True,
+              help="Re-retrieve the roles associated to the username and password you provided" \
+              f"and save the roles into {ALL_ROLES_FILE}.")
+@click.option("--session-duration", "-t",
+              help="Set the session duration in seconds,")
+@click.option("--debug", "-d", is_flag=True, show_default=True,
+              help="Enable debug mode.")
 @click.pass_context
-def main_cli(ctx, keyword, profile_name_format, refresh_cached_roles, session_duration, debug):
+def main_cli(ctx, shortlisted, pre_select, profile_name_format, refresh_cached_roles, session_duration, debug):
     if debug:
         logging.getLogger().setLevel(logging.DEBUG)
 
@@ -83,8 +96,13 @@ def main_cli(ctx, keyword, profile_name_format, refresh_cached_roles, session_du
         try:
             saml2aws_helper = Saml2AwsHelper(SAML2AWS_CONFIG_FILE, session_duration)
 
-            profile_rolearn_dict = create_profile_rolearn_dict(saml2aws_helper, profile_name_format, refresh_cached_roles)
-            pre_select_profiles = pre_select_options(profile_rolearn_dict, keyword)
+            profile_rolearn_dict = create_profile_rolearn_dict(
+                saml2aws_helper,
+                profile_name_format,
+                refresh_cached_roles,
+                shortlisted
+            )
+            pre_select_profiles = pre_select_options(profile_rolearn_dict, pre_select)
 
             answers = prompt_roles_selection(profile_rolearn_dict.keys(), pre_select_profiles)
             if answers.get("roles"):
