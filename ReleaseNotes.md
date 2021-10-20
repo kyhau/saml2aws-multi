@@ -1,3 +1,7 @@
+0.3.1 - 2021-10-20
+==================
+- Support parsing info of AWS account that does not have account alias when calling `saml2aws list-roles`.
+
 0.3.0 - 2021-05-08
 ==================
 - Renamed `--keyword|-k` to `--pre-select|-s`.
