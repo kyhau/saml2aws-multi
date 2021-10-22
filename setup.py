@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 __title__ = "saml2awsmulti"
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __author__ = "Kay Hau"
 __email__ = "virtualda+github@gmail.com"
 __uri__ = "https://github.com/kyhau/saml2aws-multi"
@@ -9,7 +9,7 @@ __summary__ = "A helper script using saml2aws to login and retrieve AWS temporar
 
 __requirements__ = [
     "boto3~=1.17",
-    "click~=7.1",
+    "click~=8.0",
     "PyInquirer~=1.0",
 ]
 

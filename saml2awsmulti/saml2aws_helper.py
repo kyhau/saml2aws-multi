@@ -31,21 +31,31 @@ class Saml2AwsHelper():
         roles = []
         accounts_dict = {}
         uname, upass = self.get_credentials()
-    
+
         cmd = f"saml2aws list-roles --username={uname} --password={upass} --skip-prompt"
-    
+
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():
             line = line.decode("utf-8").rstrip("\r|\n")
             logging.debug(line)
             if line.startswith("Account:"):
-                acc_name, acc_id = line.replace("(", "").replace(")", "").split(" ")[1:]
-                accounts_dict[acc_id] = acc_name
+                try:
+                    if "(" in line:
+                        # Account: ALIAS (ACCOUNT_NUMBER)
+                        acc_name, acc_id = line.replace("(", "").replace(")", "").split(" ")[1:]
+                    else:
+                        # Account: ACCOUNT_NUMBER
+                        acc_namee, acc_id = "None", line.split(" ")[1]
+
+                    accounts_dict[acc_id] = acc_name
+                except Exception as e:
+                    logging.error(e)
+                    logging.error(line)
             elif line.startswith("arn:"):
                 acc_id = line.split(":")[4]
                 roles.append((line, accounts_dict[acc_id]))
         retval = p.wait()
-    
+
         logging.debug(f"Response Code: {retval}")
         if not roles:
             raise ValueError("Failed to retrieve roles with saml2aws.")
@@ -53,17 +63,17 @@ class Saml2AwsHelper():
 
     def run_saml2aws_login(self, role_arn, profile_name):
         logging.info(f"Adding {profile_name}...")
-        
+
         uname, upass = self.get_credentials()
         cmd = f"saml2aws login --role={role_arn} -p {profile_name} --username={uname} --password={upass} --skip-prompt"
         if self._session_duration:
             cmd = f"{cmd} --session-duration={self._session_duration}"
-        
+
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():
             logging.debug(line.decode("utf-8").rstrip("\r|\n"))
         retval = p.wait()
-        
+
         logging.info(f"Response Code: {retval}")
         return retval
 
