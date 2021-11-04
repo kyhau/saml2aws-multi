@@ -5,7 +5,7 @@ import subprocess
 from saml2awsmulti.file_io import load_saml2aws_config
 
 
-class Saml2AwsHelper():
+class Saml2AwsHelper:
     def __init__(self, configfile, session_duration):
         self._configfile = configfile
         self._session_duration = session_duration
@@ -34,7 +34,9 @@ class Saml2AwsHelper():
 
         cmd = f"saml2aws list-roles --username={uname} --password={upass} --skip-prompt"
 
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
         for line in p.stdout.readlines():
             line = line.decode("utf-8").rstrip("\r|\n")
             logging.debug(line)
@@ -42,7 +44,11 @@ class Saml2AwsHelper():
                 try:
                     if "(" in line:
                         # Account: ALIAS (ACCOUNT_NUMBER)
-                        acc_name, acc_id = line.replace("(", "").replace(")", "").split(" ")[1:]
+                        acc_name, acc_id = (
+                            line.replace("(", "")
+                            .replace(")", "")
+                            .split(" ")[1:]
+                        )
                     else:
                         # Account: ACCOUNT_NUMBER
                         acc_namee, acc_id = "None", line.split(" ")[1]
@@ -69,11 +75,12 @@ class Saml2AwsHelper():
         if self._session_duration:
             cmd = f"{cmd} --session-duration={self._session_duration}"
 
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
         for line in p.stdout.readlines():
             logging.debug(line.decode("utf-8").rstrip("\r|\n"))
         retval = p.wait()
 
         logging.info(f"Response Code: {retval}")
         return retval
-
