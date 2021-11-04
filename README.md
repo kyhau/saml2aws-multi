@@ -1,13 +1,12 @@
 # saml2aws-multi
 
-[![githubactions](https://github.com/kyhau/saml2aws-multi/workflows/Build-Test/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions)
-[![travisci](https://travis-ci.org/kyhau/saml2aws-multi.svg?branch=master)](https://travis-ci.org/kyhau/saml2aws-multi)
-[![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/master/graph/badge.svg)](https://codecov.io/gh/kyhau/saml2aws-multi)
+[![githubactions](https://github.com/kyhau/saml2aws-multi/workflows/Build-Main/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions)
+[![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/main/graph/badge.svg)](https://codecov.io/gh/kyhau/saml2aws-multi)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
 
 This is a helper script providing an easy-to-use command line interface to support login and retrieve AWS temporary credentials for multiple roles of different accounts with [saml2aws](https://github.com/Versent/saml2aws).
 
-![Example-RoleName](assets/Example-RoleName.png)
+![Example-RoleName](docs/Example-RoleName.png)
 
 Support Python >= 3.7
 
@@ -58,7 +57,7 @@ Commands:
     arn:aws:iam::313456789012:role/aws-03-dev, aws-03
     ```
     Then, the profile names will look like
-    ![Example-RoleName-init](assets/Example-RoleName-init.png)
+    ![Example-RoleName-init](docs/Example-RoleName-init.png)
 
     To refresh the content of `aws_login_roles.csv`, just run
 
@@ -68,7 +67,7 @@ Commands:
 
 2. When you run `awslogin`, the script pre-selects the options you selected last time.
 
-    ![Example-RoleName](assets/Example-RoleName.png)
+    ![Example-RoleName](docs/Example-RoleName.png)
     To refresh the content of `aws_login_roles.csv`, just run
 
 3. Use `--pre-select` or `-s` to pre-select option by keyword(s).
@@ -100,7 +99,7 @@ Commands:
     arn:aws:iam::313456789012:role/dev, aws-03
     ```
     Then, the profile names will look like
-    ![Example-RoleName-AccountAlias](assets/Example-RoleName-AccountAlias.png)
+    ![Example-RoleName-AccountAlias](docs/Example-RoleName-AccountAlias.png)
 
 
 ## Build and Run
