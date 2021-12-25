@@ -68,7 +68,6 @@ Commands:
 2. When you run `awslogin`, the script pre-selects the options you selected last time.
 
     ![Example-RoleName](docs/Example-RoleName.png)
-    To refresh the content of `aws_login_roles.csv`, just run
 
 3. Use `--pre-select` or `-s` to pre-select option by keyword(s).
 
