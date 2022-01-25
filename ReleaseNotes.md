@@ -1,3 +1,7 @@
+0.4.0 - 2022-01-25
+==================
+- Updated `awslogin chained` to support option `--from-profile|-p` for showing chained roles from the ~/.aws/config for the given profile (specified with `from-profile|-p`).
+
 0.3.1 - 2021-10-20
 ==================
 - Support parsing info of AWS account that does not have account alias when calling `saml2aws list-roles`.
