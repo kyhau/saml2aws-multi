@@ -104,7 +104,7 @@ Commands:
 ## Build and Run
 
 1. Install [saml2aws](https://github.com/Versent/saml2aws). See also
-   [install_saml2aws.sh](install_saml2aws.sh) for Linux, or
+   [install-saml2aws.sh](install-saml2aws.sh) for Linux, or
    [Install-saml2aws.ps1](Install-saml2aws.ps1) for Windows.
 
 2. Create `saml2aws` config file (`~/.saml2aws`) by running `saml2aws configure`.
