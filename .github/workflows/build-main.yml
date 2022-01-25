@@ -26,10 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.8, 3.9, 3.10]
 
     steps:
-      - name: Checkout sources
+      - name: Checkout source
         uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -51,7 +51,7 @@ jobs:
           then
             echo "::set-output name=toxenv::py39"
           else
-            echo "::set-output name=toxenv::py39"
+            echo "::set-output name=toxenv::py310"
           fi
 
       - name: Test with tox

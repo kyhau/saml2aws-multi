@@ -120,14 +120,16 @@ def main_cli(ctx, shortlisted, pre_select, profile_name_format, refresh_cached_r
 
 
 @main_cli.command(help="List chained role profiles specified in ~/.aws/config")
-def chained():
+@click.option("--from-profile", "-p", help="List chained roles for the given profile name.")
+def chained(from_profile):
     config = get_aws_profiles(AWS_CONF_FILE)
-    profiles = [
-        profile.replace("profile ", "")
-        for profile in config.sections()
-        if config[profile].get("source_profile")
-        and config[profile].get("role_arn")
-    ]
+
+    profiles = []
+    for profile in config.sections():
+        if config[profile].get("source_profile") and config[profile].get("role_arn"):
+
+            if from_profile is None or from_profile == config[profile].get("source_profile"):
+                profiles.append(profile.replace("profile ", ""))
 
     logging.info(f"Found {len(profiles)} chained role profiles")
     cnt = 1

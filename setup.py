@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 __title__ = "saml2awsmulti"
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 __author__ = "Kay Hau"
 __email__ = "virtualda+github@gmail.com"
 __uri__ = "https://github.com/kyhau/saml2aws-multi"
