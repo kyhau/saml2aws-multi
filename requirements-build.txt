@@ -1,4 +1,4 @@
 # This file is used for running tox, flake8 and building the wheel
-logilab-common~=1.7
+logilab-common~=1.9
 tox~=3.16
 virtualenv~=20.0
