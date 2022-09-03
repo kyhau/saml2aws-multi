@@ -1,3 +1,6 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+
 0.4.0 - 2022-01-25
 ==================
 - Updated `awslogin chained` to support option `--from-profile|-p` for showing chained roles from the ~/.aws/config for the given profile (specified with `from-profile|-p`).
