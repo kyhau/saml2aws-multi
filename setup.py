@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 __title__ = "saml2awsmulti"
 __version__ = "0.4.0"
-__author__ = "Kay Hau"
+__author__ = "kyhau"
 __email__ = "virtualda+github@gmail.com"
 __uri__ = "https://github.com/kyhau/saml2aws-multi"
 __summary__ = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
@@ -24,6 +24,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3 :: Only",
 ]
 
@@ -32,7 +33,7 @@ setup(
     author_email=__email__,
     classifiers=CLASSIFIERS,
     data_files=[
-        ("", ["ReleaseNotes.md"]),
+        ("", ["CHANGELOG.md"]),
     ],
     description=__summary__,
     entry_points=__entry_points__,

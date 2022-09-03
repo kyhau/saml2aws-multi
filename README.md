@@ -1,15 +1,23 @@
 # saml2aws-multi
 
-[![githubactions](https://github.com/kyhau/saml2aws-multi/workflows/Build-Main/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions)
-[![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/main/graph/badge.svg)](https://codecov.io/gh/kyhau/saml2aws-multi)
+[![githubactions](https://github.com/kyhau/saml2aws-multi/workflows/Build-Main/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/build-main.yml)
+[![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/main/graph/badge.svg)](https://app.codecov.io/gh/kyhau/saml2aws-multi/tree/main)
+[![CodeQL](https://github.com/kyhau/saml2aws-multi/workflows/CodeQL/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/codeql-analysis.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
 
 This is a helper script providing an easy-to-use command line interface to support login and retrieve AWS temporary credentials for multiple roles of different accounts with [saml2aws](https://github.com/Versent/saml2aws).
 
 ![Example-RoleName](docs/Example-RoleName.png)
 
-Support Python >= 3.7
+All notable changes to this project will be documented in [CHANGELOG](./CHANGELOG.md).
 
+---
+## Built with
+- Python - support Python 3.7, 3.8, 3.9, 3.10.
+- [Dependabot version updates](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates) is [enabled](.github/dependabot.yml) in this repository.
+- [CodeQL](https://codeql.github.com) is [enabled](.github/workflows/codeql-analysis.yml) in this repository.
+
+---
 ## Usage
 
 ```
@@ -100,8 +108,8 @@ Commands:
     Then, the profile names will look like
     ![Example-RoleName-AccountAlias](docs/Example-RoleName-AccountAlias.png)
 
-
-## Build and Run
+---
+## Build and run
 
 1. Install [saml2aws](https://github.com/Versent/saml2aws). See also
    [install-saml2aws.sh](install-saml2aws.sh) for Linux, or
@@ -110,14 +118,19 @@ Commands:
 2. Create `saml2aws` config file (`~/.saml2aws`) by running `saml2aws configure`.
 
 3. Build and run
+
 ```
+# Create and activate a new virtual env (optional)
 virtualenv env
 . env/bin/activate      # (or env\Scripts\activate on Windows)
+
+# Install and run
 pip install -e .
 awslogin --help
 ```
 
-## Tox Tests and Build the Wheels
+---
+## Run Tox tests and build the wheels
 
 ```
 pip install -r requirements-build.txt
