@@ -99,14 +99,14 @@ def main_cli(ctx, shortlisted, pre_select, profile_name_format, refresh_cached_r
             )
             pre_select_profiles = pre_select_options(profile_rolearn_dict, pre_select)
 
-            answers = prompt_roles_selection(profile_rolearn_dict.keys(), pre_select_profiles)
-            if answers.get("roles"):
-                for profile in answers["roles"]:
+            roles = prompt_roles_selection(profile_rolearn_dict.keys(), pre_select_profiles)
+            if roles:
+                for profile in roles:
                     saml2aws_helper.run_saml2aws_login(profile_rolearn_dict[profile], profile)
 
                 # Dump the last selected options
                 with open(LAST_SELECTED_FILE, "w") as f:
-                    f.write("\n".join(answers["roles"]))
+                    f.write("\n".join(roles))
             else:
                 logging.info("Nothing selected. Aborted.")
         except FileNotFoundError as e:
@@ -143,8 +143,7 @@ def switch():
     cred_config = get_aws_profiles(AWS_CRED_FILE)
     options = [profile for profile in cred_config.sections() if profile != "default"]
     if options:
-        answer = prompt_profile_selection(options)
-        profile = answer.get("profile")
+        profile = prompt_profile_selection(options)
         if profile is not None:
             cred_config["default"] = cred_config[profile]
             write_aws_profiles(AWS_CRED_FILE, cred_config)
