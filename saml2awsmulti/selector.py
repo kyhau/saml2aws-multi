@@ -1,4 +1,4 @@
-from PyInquirer import Token, prompt, style_from_dict
+from InquirerPy import Token, prompt, style_from_dict
 
 custom_style = style_from_dict(
     {
