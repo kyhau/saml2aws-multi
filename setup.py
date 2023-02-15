@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 __title__ = "saml2awsmulti"
-__version__ = "0.4.0"
+__version__ = "1.0.0"
 __author__ = "kyhau"
 __email__ = "virtualda+github@gmail.com"
 __uri__ = "https://github.com/kyhau/saml2aws-multi"
@@ -10,7 +10,7 @@ __summary__ = "A helper script using saml2aws to login and retrieve AWS temporar
 __requirements__ = [
     "boto3~=1.17",
     "click~=8.0",
-    "PyInquirer~=1.0",
+    "InquirerPy~=0.3",
 ]
 
 __entry_points__ = {
@@ -21,10 +21,10 @@ __entry_points__ = {
 
 CLASSIFIERS = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3 :: Only",
 ]
 
@@ -40,7 +40,7 @@ setup(
     install_requires=__requirements__,
     name=__title__,
     packages=find_packages(exclude=["tests"]),
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     url=__uri__,
     version=__version__,
     zip_safe=False,
