@@ -2,5 +2,5 @@
 pip~=23.3
 virtualenv~=20.24
 setuptools>=65.5.1  # not directly required, pinned by Snyk to avoid a vulnerability
-logilab-common~=1.10
+logilab-common~=1.11
 tox~=4.11
