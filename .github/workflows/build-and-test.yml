@@ -25,15 +25,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python-3.8@master
+        uses: snyk/actions/python-3.10@master
         continue-on-error: true  # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --all-projects --severity-threshold=high --sarif-file-output=snyk.sarif
+          command: test -d
 
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v2
