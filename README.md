@@ -1,8 +1,9 @@
 # saml2aws-multi
 
-[![githubactions](https://github.com/kyhau/saml2aws-multi/workflows/Build-Main/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/build-main.yml)
+[![githubactions](https://github.com/kyhau/saml2aws-multi/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/build-and-test.yml)
 [![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/main/graph/badge.svg)](https://app.codecov.io/gh/kyhau/saml2aws-multi/tree/main)
-[![CodeQL](https://github.com/kyhau/saml2aws-multi/workflows/CodeQL/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/codeql-analysis.yml)
+[![CodeQL](https://github.com/kyhau/saml2aws-multi/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/codeql-analysis.yml)
+[![SecretsScan](https://github.com/kyhau/saml2aws-multi/actions/workflows/secrets-scan.yml/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/secrets-scan.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
 
 This is a helper script providing an easy-to-use command line interface to support login and retrieve AWS temporary credentials for multiple roles of different accounts with [saml2aws](https://github.com/Versent/saml2aws).
@@ -14,8 +15,10 @@ All notable changes to this project will be documented in [CHANGELOG](./CHANGELO
 ---
 ## Built with
 - Python - support Python 3.8, 3.9, 3.10, 3.11.
-- [Dependabot version updates](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates) is [enabled](.github/dependabot.yml) in this repository.
 - [CodeQL](https://codeql.github.com) is [enabled](.github/workflows/codeql-analysis.yml) in this repository.
+- [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates) is [enabled](.github/dependabot.yml) for auto dependency updates.
+- [Snyk](https://github.com/snyk/actions) is enabled in this GitHub Actions [workflow](.github/workflows/build-and-test.yaml) for vulnerability scanning and auto pull-request.
+- [Gitleaks](https://github.com/gitleaks/gitleaks) and [TruffleHog](https://github.com/trufflesecurity/trufflehog) are enabled in this GitHub Actions [workflow](.github/workflows/secrets-scan.yml) for secrets scanning.
 
 ---
 ## Usage
