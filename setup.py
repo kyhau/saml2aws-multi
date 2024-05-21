@@ -8,8 +8,8 @@ __uri__ = "https://github.com/kyhau/saml2aws-multi"
 __summary__ = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
 
 __requirements__ = [
-    "boto3~=1.17",
-    "click~=8.0",
+    "boto3~=1.34",
+    "click~=8.1",
     "InquirerPy~=0.3",
 ]
 
@@ -21,10 +21,9 @@ __entry_points__ = {
 
 CLASSIFIERS = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3 :: Only",
 ]
 
@@ -40,7 +39,7 @@ setup(
     install_requires=__requirements__,
     name=__title__,
     packages=find_packages(exclude=["tests"]),
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     url=__uri__,
     version=__version__,
     zip_safe=False,

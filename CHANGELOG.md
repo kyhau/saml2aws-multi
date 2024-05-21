@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+1.0.1 - 2024-05-21
+==================
+- Test with Python 3.12.
+- No longer test with Python 3.8 and Python 3.9.
+
+
 1.0.0 - 2023-02-15
 ==================
 - Replaced `PyInquirer` with [InquirerPy](https://github.com/kazhala/InquirerPy) - https://github.com/kyhau/saml2aws-multi/issues/20
