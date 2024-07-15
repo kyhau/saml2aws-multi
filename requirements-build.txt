@@ -4,3 +4,4 @@ virtualenv~=20.26
 setuptools~=70.3
 logilab-common~=2.0
 tox~=4.16
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
