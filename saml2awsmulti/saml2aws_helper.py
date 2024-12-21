@@ -6,9 +6,10 @@ from saml2awsmulti.file_io import load_saml2aws_config
 
 
 class Saml2AwsHelper:
-    def __init__(self, configfile, session_duration):
+    def __init__(self, configfile, session_duration, browser_autofill):
         self._configfile = configfile
         self._session_duration = session_duration
+        self._browser_autofill = browser_autofill
         self._uname = None
         self._upass = None
 
@@ -69,6 +70,9 @@ class Saml2AwsHelper:
         cmd = f"saml2aws login --role={role_arn} -p {profile_name} --username={uname} --password={upass} --skip-prompt"
         if self._session_duration:
             cmd = f"{cmd} --session-duration={self._session_duration}"
+
+        if self._browser_autofill:
+            cmd = f"{cmd} --browser-autofill"
 
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():

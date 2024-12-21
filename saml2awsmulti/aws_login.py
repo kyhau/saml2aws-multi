@@ -81,15 +81,16 @@ def pre_select_options(profile_rolearn_dict, keywords):
 @click.option("--refresh-cached-roles", "-r", is_flag=True, show_default=True,
     help=f"Re-retrieve the roles associated to the username and password you provided and save the roles into {ALL_ROLES_FILE}.")
 @click.option("--session-duration", "-t", help="Set the session duration in seconds.")
+@click.option("--browser-autofill", "-b", is_flag=True, show_default=True, help="Enable browser-autofill.")
 @click.option("--debug", "-d", is_flag=True, show_default=True, help="Enable debug mode.")
 @click.pass_context
-def main_cli(ctx, shortlisted, pre_select, profile_name_format, refresh_cached_roles, session_duration, debug):
+def main_cli(ctx, shortlisted, pre_select, profile_name_format, refresh_cached_roles, session_duration, browser_autofill, debug):
     if debug:
         logging.getLogger().setLevel(logging.DEBUG)
 
     if ctx.invoked_subcommand is None:
         try:
-            saml2aws_helper = Saml2AwsHelper(SAML2AWS_CONFIG_FILE, session_duration)
+            saml2aws_helper = Saml2AwsHelper(SAML2AWS_CONFIG_FILE, session_duration, browser_autofill)
 
             profile_rolearn_dict = create_profile_rolearn_dict(
                 saml2aws_helper,
