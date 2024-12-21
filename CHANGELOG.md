@@ -1,11 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+1.1.0 - 2024-12-21
+==================
+- Supported new option `--browser-autofill|-b` to enable browser-autofill in saml2aws
+
 1.0.1 - 2024-05-21
 ==================
 - Test with Python 3.12.
 - No longer test with Python 3.8 and Python 3.9.
-
 
 1.0.0 - 2023-02-15
 ==================
