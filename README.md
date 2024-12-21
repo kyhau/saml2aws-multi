@@ -46,6 +46,7 @@ Options:
                                   multi/aws_login_roles.csv.  [default: False]
 
   -t, --session-duration TEXT     Set the session duration in seconds,
+  -b, --browser-autofill          Enable browser-autofill.
   -d, --debug                     Enable debug mode.  [default: False]
   --help                          Show this message and exit.
 
