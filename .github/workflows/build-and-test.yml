@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.12, 3.11, "3.10"]
+        python-version: [3.13, 3.12, 3.11, "3.10"]
 
     steps:
       - name: Checkout source
@@ -42,7 +42,10 @@ jobs:
 
       - id: ToxSetting
         run: |
-          if [[ "${{ matrix.python-version }}" == "3.12" ]]
+          if [[ "${{ matrix.python-version }}" == "3.13" ]]
+          then
+            echo "toxenv=py313" >> $GITHUB_OUTPUT
+          elif [[ "${{ matrix.python-version }}" == "3.12" ]]
           then
             echo "toxenv=py312" >> $GITHUB_OUTPUT
           elif [[ "${{ matrix.python-version }}" == "3.11" ]]
