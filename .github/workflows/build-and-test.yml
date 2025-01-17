@@ -44,10 +44,10 @@ jobs:
         run: |
           if [[ "${{ matrix.python-version }}" == "3.13" ]]
           then
-            echo "toxenv=py312" >> $GITHUB_OUTPUT
+            echo "toxenv=py313" >> $GITHUB_OUTPUT
           elif [[ "${{ matrix.python-version }}" == "3.12" ]]
           then
-            echo "toxenv=py311" >> $GITHUB_OUTPUT
+            echo "toxenv=py312" >> $GITHUB_OUTPUT
           elif [[ "${{ matrix.python-version }}" == "3.11" ]]
           then
             echo "toxenv=py311" >> $GITHUB_OUTPUT
