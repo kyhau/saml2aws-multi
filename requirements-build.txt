@@ -3,4 +3,4 @@ pip~=25.1
 virtualenv~=20.31
 setuptools~=80.9
 logilab-common~=2.1
-tox~=4.27
+tox~=4.28
