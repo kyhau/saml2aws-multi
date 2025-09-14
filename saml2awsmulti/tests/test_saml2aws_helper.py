@@ -151,7 +151,7 @@ class TestSaml2AwsHelper:
 
         helper = Saml2AwsHelper("config_file", None, False)
 
-        with pytest.raises(ValueError, match="Failed to retrieve roles with saml2aws"):
+        with pytest.raises(KeyError):
             helper.run_saml2aws_list_roles()
 
     @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')

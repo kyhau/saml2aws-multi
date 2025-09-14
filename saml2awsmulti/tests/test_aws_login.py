@@ -165,20 +165,21 @@ class TestMainCli:
         mock_helper.run_saml2aws_login.assert_called_once()
 
     @patch('saml2awsmulti.aws_login.Saml2AwsHelper')
-    def test_main_cli_file_not_found_saml2aws_config(self, mock_helper_class):
+    def test_main_cli_file_not_found_saml2aws_config(self, mock_helper_class, caplog):
         runner = CliRunner()
         mock_helper_class.side_effect = FileNotFoundError("saml2aws config not found")
 
-        result = runner.invoke(main_cli, [])
+        with caplog.at_level("ERROR"):
+            result = runner.invoke(main_cli, [])
 
         assert result.exit_code == 0  # Click handles exceptions gracefully
-        assert "saml2aws config not found" in result.output
+        assert "saml2aws config not found" in caplog.text
 
     @patch('saml2awsmulti.aws_login.Saml2AwsHelper')
     @patch('saml2awsmulti.aws_login.create_profile_rolearn_dict')
     @patch('saml2awsmulti.aws_login.pre_select_options')
     @patch('saml2awsmulti.aws_login.prompt_roles_selection')
-    def test_main_cli_nothing_selected(self, mock_prompt, mock_pre_select, mock_create_dict, mock_helper_class):
+    def test_main_cli_nothing_selected(self, mock_prompt, mock_pre_select, mock_create_dict, mock_helper_class, caplog):
         runner = CliRunner()
         mock_helper = Mock()
         mock_helper_class.return_value = mock_helper
@@ -186,39 +187,41 @@ class TestMainCli:
         mock_pre_select.return_value = []
         mock_prompt.return_value = []
 
-        result = runner.invoke(main_cli, [])
+        with caplog.at_level("INFO"):
+            result = runner.invoke(main_cli, [])
 
         assert result.exit_code == 0
-        assert "Nothing selected. Aborted." in result.output
+        assert "Nothing selected. Aborted." in caplog.text
         mock_helper.run_saml2aws_login.assert_not_called()
 
 
 class TestChainedCommand:
     @patch('saml2awsmulti.aws_login.get_aws_profiles')
-    def test_chained_with_profiles(self, mock_get_profiles):
+    def test_chained_with_profiles(self, mock_get_profiles, caplog):
         runner = CliRunner()
         mock_config = Mock()
         mock_config.sections.return_value = ["profile dev", "profile test"]
-        mock_config.__getitem__.side_effect = lambda x: {
+        mock_config.__getitem__ = Mock(return_value={
             "source_profile": "base",
             "role_arn": "arn:aws:iam::123456789012:role/dev"
-        }
+        })
         mock_get_profiles.return_value = mock_config
 
-        result = runner.invoke(chained, [])
+        with caplog.at_level("INFO"):
+            result = runner.invoke(chained, [])
 
         assert result.exit_code == 0
-        assert "Found 2 chained role profiles" in result.output
+        assert "Found 2 chained role profiles" in caplog.text
 
     @patch('saml2awsmulti.aws_login.get_aws_profiles')
     def test_chained_with_from_profile(self, mock_get_profiles):
         runner = CliRunner()
         mock_config = Mock()
         mock_config.sections.return_value = ["profile dev"]
-        mock_config.__getitem__.return_value = {
+        mock_config.__getitem__ = Mock(return_value={
             "source_profile": "base",
             "role_arn": "arn:aws:iam::123456789012:role/dev"
-        }
+        })
         mock_get_profiles.return_value = mock_config
 
         result = runner.invoke(chained, ["--from-profile", "base"])
@@ -230,31 +233,34 @@ class TestSwitchCommand:
     @patch('saml2awsmulti.aws_login.get_aws_profiles')
     @patch('saml2awsmulti.aws_login.write_aws_profiles')
     @patch('saml2awsmulti.aws_login.prompt_profile_selection')
-    def test_switch_success(self, mock_prompt, mock_write, mock_get_profiles):
+    def test_switch_success(self, mock_prompt, mock_write, mock_get_profiles, caplog):
         runner = CliRunner()
         mock_config = Mock()
         mock_config.sections.return_value = ["default", "dev", "test"]
-        mock_config.__getitem__.return_value = {"aws_access_key_id": "test"}
+        mock_config.__getitem__ = Mock(return_value={"aws_access_key_id": "test"})
+        mock_config.__setitem__ = Mock()  # Enable item assignment
         mock_get_profiles.return_value = mock_config
         mock_prompt.return_value = "dev"
 
-        result = runner.invoke(switch, [])
+        with caplog.at_level("INFO"):
+            result = runner.invoke(switch, [])
 
         assert result.exit_code == 0
-        assert "Set the default profile to dev" in result.output
+        assert "Set the default profile to dev" in caplog.text
         mock_write.assert_called_once()
 
     @patch('saml2awsmulti.aws_login.get_aws_profiles')
-    def test_switch_no_profiles(self, mock_get_profiles):
+    def test_switch_no_profiles(self, mock_get_profiles, caplog):
         runner = CliRunner()
         mock_config = Mock()
         mock_config.sections.return_value = ["default"]
         mock_get_profiles.return_value = mock_config
 
-        result = runner.invoke(switch, [])
+        with caplog.at_level("INFO"):
+            result = runner.invoke(switch, [])
 
         assert result.exit_code == 0
-        assert "No non default aws profile found" in result.output
+        assert "No non default aws profile found" in caplog.text
 
 
 class TestWhoamiCommand:
@@ -295,11 +301,12 @@ class TestWhoamiCommand:
         mock_session.assert_called_once_with(profile_name="dev")
 
     @patch('saml2awsmulti.aws_login.Session')
-    def test_whoami_error(self, mock_session):
+    def test_whoami_error(self, mock_session, caplog):
         runner = CliRunner()
         mock_session.side_effect = Exception("AWS credentials not found")
 
-        result = runner.invoke(whoami, [])
+        with caplog.at_level("ERROR"):
+            result = runner.invoke(whoami, [])
 
         assert result.exit_code == 0
-        assert "AWS credentials not found" in result.output
+        assert "AWS credentials not found" in caplog.text
