@@ -1,7 +1,7 @@
 # saml2aws-multi Makefile - Unit Testing Focus
 # Provides targets for running unit tests locally
 
-.PHONY: help test test-coverage clean install-test-deps yamllint build run
+.PHONY: help test test-coverage clean install-test-deps yamllint build run check-uv
 
 # Default target
 help: ## Show this help message
@@ -9,24 +9,29 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # Variables
-PYTHON := uv run python
-PIP := uv run pip
-PYTEST := uv run pytest
-BUILD := uv run python -m build
+UV := uv
+PYTHON := $(UV) run python
+PIP := $(UV) run pip
+PYTEST := $(UV) run pytest
+BUILD := $(UV) run python -m build
+
+# Check if uv is available, install if not
+check-uv:
+	@which uv > /dev/null || (echo "Installing uv..." && pip install uv)
 
 # Installation targets
-install-test-deps: ## Install test dependencies
+install-test-deps: check-uv ## Install test dependencies
 	@echo "Installing test dependencies..."
 	$(PIP) install -e ".[test]"
 	@echo "Dependencies installed."
 
-install-deps: ## Install project dependencies
+install-deps: check-uv ## Install project dependencies
 	@echo "Installing project dependencies..."
 	$(PIP) install -e .
 	@echo "Dependencies installed."
 
 # Build targets
-build: ## Build the package
+build: check-uv ## Build the package
 	@echo "Building package..."
 	$(BUILD)
 	@echo "Package built successfully."

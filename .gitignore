@@ -90,3 +90,4 @@ ENV/
 .ropeproject
 .idea/
 junit.xml
+coverage.xml
