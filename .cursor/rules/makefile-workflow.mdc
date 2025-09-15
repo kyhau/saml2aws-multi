@@ -1,0 +1,50 @@
+---
+description: Makefile-based development workflow for saml2aws-multi
+globs: ["Makefile", "pyproject.toml", "saml2awsmulti/**"]
+alwaysApply: true
+---
+
+# saml2aws-multi Development Workflow
+
+## Build and Test Commands
+Use the Makefile for all build and test operations:
+
+### Build Commands
+- `make build` - Build the Python package
+- `make install-deps` - Install project dependencies
+- `make install-test-deps` - Install test dependencies
+
+### Test Commands
+- `make test` - Run unit tests without coverage
+- `make test-coverage` - Run unit tests with coverage reporting
+- `make yamllint` - Run yamllint on GitHub workflow files
+
+### Development Commands
+- `make run` - Run the application (installs deps and runs awslogin)
+- `make clean` - Clean test artifacts, build artifacts and temporary files
+- `make help` - Show all available targets
+
+## Project Structure
+- Main package: `saml2awsmulti/`
+- Tests: `saml2awsmulti/tests/`
+- CLI entry point: `awslogin` (defined in pyproject.toml)
+- Configuration: `pyproject.toml`
+
+## Development Workflow
+1. Install dependencies: `make install-deps`
+2. Run tests: `make test` or `make test-coverage`
+3. Build package: `make build`
+4. Run application: `make run`
+5. Clean artifacts: `make clean`
+
+## Python Environment
+- Python 3.10+ required (uses Python 3.13 via uv)
+- Uses uv for Python package management
+- Uses setuptools for building
+- Dependencies managed via pyproject.toml
+- Test dependencies in optional-dependencies.test
+
+## Code Quality
+- Use `make yamllint` for YAML linting
+- Use `make test-coverage` for comprehensive testing
+- Clean up with `make clean` before commits
