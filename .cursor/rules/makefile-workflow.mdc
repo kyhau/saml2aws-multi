@@ -20,7 +20,6 @@ Use the Makefile for all build and test operations:
 - `make yamllint` - Run yamllint on GitHub workflow files
 
 ### Development Commands
-- `make run` - Run the application (installs deps and runs awslogin)
 - `make clean` - Clean test artifacts, build artifacts and temporary files
 - `make help` - Show all available targets
 
@@ -34,7 +33,7 @@ Use the Makefile for all build and test operations:
 1. Install dependencies: `make install-deps`
 2. Run tests: `make test` or `make test-coverage`
 3. Build package: `make build`
-4. Run application: `make run`
+4. Run application: `awslogin` (after installation)
 5. Clean artifacts: `make clean`
 
 ## Python Environment
