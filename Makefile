@@ -1,7 +1,7 @@
 # saml2aws-multi Makefile - Unit Testing Focus
 # Provides targets for running unit tests locally
 
-.PHONY: help test test-coverage clean install-test-deps yamllint build run check-uv
+.PHONY: help test test-coverage clean install-test-deps yamllint build check-uv
 
 # Default target
 help: ## Show this help message
@@ -36,10 +36,7 @@ build: check-uv ## Build the package
 	$(BUILD)
 	@echo "Package built successfully."
 
-# Run targets
-run: install-deps ## Run the application
-	@echo "Running saml2aws-multi..."
-	awslogin
+# Run targets (removed - awslogin is an interactive CLI tool)
 
 
 # Testing targets

@@ -121,22 +121,40 @@ Commands:
 
 2. Create `saml2aws` config file (`~/.saml2aws`) by running `saml2aws configure`.
 
-3. Build and run
+3. Build and install using Makefile (automatically installs uv and Python 3.13)
 
+```bash
+# Install dependencies
+make install-deps
+
+# Build the package
+make build
+
+# Show all available targets
+make help
 ```
-# Create and activate a new virtual env (optional)
-virtualenv env
-. env/bin/activate      # (or env\Scripts\activate on Windows)
 
-# Install and run
-pip install -e .
+4. Run the application
+
+```bash
+# After installation, you can run awslogin directly
 awslogin --help
+awslogin
 ```
 
 ---
 ## Run tests
 
-```
-pip install -e ".[test]"
-make test-all
+```bash
+# Run unit tests (automatically installs uv and dependencies)
+make test
+
+# Run tests with coverage reporting
+make test-coverage
+
+# Run yamllint on GitHub workflow files
+make yamllint
+
+# Clean test artifacts and build files
+make clean
 ```
