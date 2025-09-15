@@ -134,9 +134,9 @@ awslogin --help
 ```
 
 ---
-## Run Tox tests and build the wheels
+## Run tests
 
 ```
-pip install -r requirements-build.txt
-tox -r
+pip install -e ".[test]"
+make test-all
 ```

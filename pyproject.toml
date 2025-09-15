@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "saml2awsmulti"
+version = "1.1.0"
+description = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [
+    {name = "kyhau", email = "virtualda+github@gmail.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+    "boto3~=1.34",
+    "click~=8.1",
+    "InquirerPy~=0.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/kyhau/saml2aws-multi"
+Repository = "https://github.com/kyhau/saml2aws-multi"
+
+[project.scripts]
+awslogin = "saml2awsmulti.aws_login:main_cli"
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.package-data]
+"*" = ["CHANGELOG.md"]
+
+# Test dependencies
+[project.optional-dependencies]
+test = [
+    "pytest~=8.4",
+    "pytest-cov~=6.3",
+    "pytest-mock~=3.15",
+    "pytest-gitignore~=1.3",
+    "coverage~=7.10",
+    "mock~=5.2",
+    "flake8~=7.3",
+]
+
+# Build dependencies (for development)
+dev = [
+    "setuptools~=80.9",
+    "wheel",
+]
