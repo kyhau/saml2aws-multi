@@ -113,7 +113,9 @@ Commands:
     ![Example-RoleName-AccountAlias](docs/Example-RoleName-AccountAlias.png)
 
 ---
-## Build and run
+## Installation
+
+### Prerequisites
 
 1. Install [saml2aws](https://github.com/Versent/saml2aws). See also
    [install-saml2aws.sh](install-saml2aws.sh) for Linux, or
@@ -121,32 +123,64 @@ Commands:
 
 2. Create `saml2aws` config file (`~/.saml2aws`) by running `saml2aws configure`.
 
-3. Build and install using Makefile (automatically installs uv and Python 3.13)
+### Option 1: Install globally with pipx (Recommended for end users)
+
+[pipx](https://pipx.pypa.io/) installs the CLI tool in an isolated environment while making it globally available.
 
 ```bash
-# Install dependencies
+# Install pipx if you don't have it
+pip install pipx
+
+# Install from local directory
+pipx install .
+
+# Now you can run awslogin from anywhere
+awslogin --help
+awslogin
+```
+
+### Option 2: Install globally with pip
+
+```bash
+# Install from local directory
+pip install .
+
+# Run awslogin
+awslogin --help
+awslogin
+```
+
+### Option 3: Development installation with Poetry
+
+For contributing or development work:
+
+```bash
+# Install dependencies and the package in editable mode
 make install-deps
 
-# Build the package
-make build
+# Run using Poetry
+poetry run awslogin --help
+poetry run awslogin
+
+# Or activate Poetry's virtualenv first
+poetry shell
+awslogin
 
 # Show all available targets
 make help
 ```
 
-4. Run the application
+### Build distribution packages (for maintainers)
 
 ```bash
-# After installation, you can run awslogin directly
-awslogin --help
-awslogin
+make build
 ```
 
 ---
 ## Run tests
 
 ```bash
-# Run unit tests (automatically installs uv and dependencies)
+# Run unit tests (automatically installs Poetry and dependencies)
 make test
 
 # Run tests with coverage reporting

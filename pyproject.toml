@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "saml2awsmulti"
-version = "1.1.0"
+version = "1.1.1"
 description = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -33,13 +33,10 @@ Repository = "https://github.com/kyhau/saml2aws-multi"
 awslogin = "saml2awsmulti.aws_login:main_cli"
 
 [tool.setuptools.packages.find]
-exclude = ["tests*"]
+exclude = ["tests*", "saml2awsmulti.tests*"]
 
 [tool.setuptools]
 zip-safe = false
-
-[tool.setuptools.package-data]
-"*" = ["CHANGELOG.md"]
 
 # Test dependencies
 [project.optional-dependencies]
@@ -58,3 +55,36 @@ dev = [
     "setuptools~=80.9",
     "wheel",
 ]
+
+# Poetry-specific configuration
+[tool.poetry]
+name = "saml2awsmulti"
+version = "1.1.1"
+description = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
+authors = ["kyhau <virtualda+github@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "saml2awsmulti"}]
+exclude = ["saml2awsmulti/tests"]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+boto3 = "~1.34"
+click = "~8.1"
+InquirerPy = "~0.3"
+
+[tool.poetry.group.test.dependencies]
+pytest = "~8.4"
+pytest-cov = "~6.3"
+pytest-mock = "~3.15"
+pytest-gitignore = "~1.3"
+coverage = "~7.10"
+mock = "~5.2"
+flake8 = "~7.3"
+
+[tool.poetry.group.dev.dependencies]
+setuptools = "~80.9"
+wheel = "*"
+
+[tool.poetry.scripts]
+awslogin = "saml2awsmulti.aws_login:main_cli"

@@ -20,13 +20,13 @@ class TestSaml2AwsHelper:
     @patch('getpass.getpass')
     def test_get_credentials_from_config(self, mock_getpass, mock_input, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
-        mock_getpass.return_value = "testpass"
+        mock_getpass.return_value = "<test_password>"
 
         helper = Saml2AwsHelper("config_file", None, False)
         username, password = helper.get_credentials()
 
         assert username == "testuser"
-        assert password == "testpass"
+        assert password == "<test_password>"
         mock_input.assert_not_called()
         mock_getpass.assert_called_once()
 

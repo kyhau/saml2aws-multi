@@ -1,7 +1,7 @@
 # saml2aws-multi Makefile - Unit Testing Focus
 # Provides targets for running unit tests locally
 
-.PHONY: help test test-coverage clean install-test-deps yamllint build check-uv
+.PHONY: help test test-coverage clean clean-all install-test-deps yamllint build check-poetry setup-venv update-deps lock
 
 # Default target
 help: ## Show this help message
@@ -9,35 +9,40 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # Variables
-UV := uv
-PYTHON := $(UV) run python
-PIP := $(UV) run pip
-PYTEST := $(UV) run pytest
-BUILD := $(UV) run python -m build
+POETRY := poetry
+PYTHON := $(POETRY) run python
+PYTEST := $(POETRY) run pytest
+BUILD := $(POETRY) build
 
-# Check if uv is available, install if not
-check-uv:
-	@which uv > /dev/null || (echo "Installing uv..." && pip install uv)
+# Check if poetry is available, install if not
+check-poetry:
+	@which poetry > /dev/null || (echo "Installing Poetry..." && pip install --user poetry && echo "Poetry installed successfully!")
+
+# Configure Poetry to use project-local venv (run once)
+setup-venv: check-poetry ## Configure Poetry to use .venv in project directory
+	@echo "Configuring Poetry for project-local virtualenv..."
+	$(POETRY) config virtualenvs.in-project true
+	@echo "Poetry will now create .venv/ in the project directory"
+	@echo "This isolates dependencies from your global Python environment"
 
 # Installation targets
-install-test-deps: check-uv ## Install test dependencies
+install-test-deps: check-poetry ## Install test dependencies
 	@echo "Installing test dependencies..."
-	$(PIP) install -e ".[test]"
+	$(POETRY) install --with test
 	@echo "Dependencies installed."
 
-install-deps: check-uv ## Install project dependencies
+install-deps: check-poetry ## Install project dependencies
 	@echo "Installing project dependencies..."
-	$(PIP) install -e .
+	$(POETRY) install
 	@echo "Dependencies installed."
 
 # Build targets
-build: check-uv ## Build the package
+build: check-poetry ## Build the package
 	@echo "Building package..."
 	$(BUILD)
 	@echo "Package built successfully."
 
 # Run targets (removed - awslogin is an interactive CLI tool)
-
 
 # Testing targets
 test: install-test-deps ## Run unit tests without coverage
@@ -52,6 +57,17 @@ test-coverage: install-test-deps ## Run unit tests with coverage reporting
 yamllint: ## Run yamllint on GitHub workflow files
 	yamllint -c .github/linters/.yaml-lint.yaml .github/
 
+# Dependency management
+update-deps: check-poetry ## Update dependencies to latest compatible versions
+	@echo "Updating dependencies..."
+	$(POETRY) update
+	@echo "Dependencies updated in poetry.lock"
+
+lock: check-poetry ## Regenerate poetry.lock from pyproject.toml
+	@echo "Regenerating lock file..."
+	$(POETRY) lock --no-update
+	@echo "Lock file regenerated"
+
 # Cleanup targets
 clean: ## Clean test artifacts, build artifacts and temporary files
 	rm -rf .coverage*
@@ -60,9 +76,17 @@ clean: ## Clean test artifacts, build artifacts and temporary files
 	rm -rf htmlcov/
 	rm -rf build/
 	rm -rf dist/
+	rm -rf eggs/
+	rm -rf .eggs/
 	rm -rf *.egg-info/
+	rm -rf *.egg
+	rm -rf .pytest_cache/
 	find . -type d -name __pycache__ -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
+	find . -type f -name "*.py[cod]" -delete
+
+clean-all: ## Clean everything including virtual environment
+	$(MAKE) clean
+	rm -rf .venv/
 
 # Default target when no target is specified
 .DEFAULT_GOAL := help
