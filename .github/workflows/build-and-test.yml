@@ -12,7 +12,7 @@ defaults:
 
 jobs:
   lint:
-    name: Run yamllint with common config
+    name: Run yamllint on workflows
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -20,6 +20,10 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install yamllint
+        run: poetry install --only dev
       - name: Run yamllint
         run: make yamllint
 

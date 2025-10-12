@@ -54,8 +54,9 @@ test-coverage: install-test-deps ## Run unit tests with coverage reporting
 	$(PYTEST) saml2awsmulti/tests/ -v --cov=saml2awsmulti --cov-report=xml:coverage.xml --cov-report=term-missing --junit-xml junit.xml
 
 # Linting targets
-yamllint: ## Run yamllint on GitHub workflow files
-	yamllint -c .github/linters/.yaml-lint.yaml .github/
+yamllint: check-poetry ## Run yamllint on GitHub workflow files
+	@echo "Running yamllint on GitHub workflows..."
+	$(POETRY) run yamllint -c .github/linters/.yaml-lint.yml .github/
 
 # Dependency management
 update-deps: check-poetry ## Update dependencies to latest compatible versions
@@ -65,7 +66,7 @@ update-deps: check-poetry ## Update dependencies to latest compatible versions
 
 lock: check-poetry ## Regenerate poetry.lock from pyproject.toml
 	@echo "Regenerating lock file..."
-	$(POETRY) lock --no-update
+	$(POETRY) lock
 	@echo "Lock file regenerated"
 
 # Cleanup targets

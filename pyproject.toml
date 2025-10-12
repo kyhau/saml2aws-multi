@@ -85,6 +85,7 @@ flake8 = "~7.3"
 [tool.poetry.group.dev.dependencies]
 setuptools = "~80.9"
 wheel = "*"
+yamllint = "~1.35"
 
 [tool.poetry.scripts]
 awslogin = "saml2awsmulti.aws_login:main_cli"
