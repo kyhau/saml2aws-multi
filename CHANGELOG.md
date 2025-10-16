@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+1.1.1 - 2025-10-12
+==================
+- Migrated from `uv` to Poetry for dependency management to enable Dependabot support
+- Added `make update-deps` and `make lock` targets for dependency management
+- Updated build system to use Poetry while maintaining setuptools compatibility
+
 1.1.0 - 2024-12-21
 ==================
 - Supported new option `--browser-autofill|-b` to enable browser-autofill in saml2aws

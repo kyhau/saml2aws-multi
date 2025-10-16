@@ -10,6 +10,3 @@ coverage:
 comment:
   layout: "header, diff"
   behavior: default
-ignore:
-  - "**/file_io.py"
-  - "**/selector.py"

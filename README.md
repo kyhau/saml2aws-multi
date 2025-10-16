@@ -113,7 +113,9 @@ Commands:
     ![Example-RoleName-AccountAlias](docs/Example-RoleName-AccountAlias.png)
 
 ---
-## Build and run
+## Installation
+
+### Prerequisites
 
 1. Install [saml2aws](https://github.com/Versent/saml2aws). See also
    [install-saml2aws.sh](install-saml2aws.sh) for Linux, or
@@ -121,22 +123,72 @@ Commands:
 
 2. Create `saml2aws` config file (`~/.saml2aws`) by running `saml2aws configure`.
 
-3. Build and run
+### Option 1: Install globally with pipx (Recommended for end users)
 
-```
-# Create and activate a new virtual env (optional)
-virtualenv env
-. env/bin/activate      # (or env\Scripts\activate on Windows)
+[pipx](https://pipx.pypa.io/) installs the CLI tool in an isolated environment while making it globally available.
 
-# Install and run
-pip install -e .
+```bash
+# Install pipx if you don't have it
+pip install pipx
+
+# Install from local directory
+pipx install .
+
+# Now you can run awslogin from anywhere
 awslogin --help
+awslogin
+```
+
+### Option 2: Install globally with pip
+
+```bash
+# Install from local directory
+pip install .
+
+# Run awslogin
+awslogin --help
+awslogin
+```
+
+### Option 3: Development installation with Poetry
+
+For contributing or development work:
+
+```bash
+# Install dependencies and the package in editable mode
+make install-deps
+
+# Run using Poetry
+poetry run awslogin --help
+poetry run awslogin
+
+# Or activate Poetry's virtualenv first
+poetry shell
+awslogin
+
+# Show all available targets
+make help
+```
+
+### Build distribution packages (for maintainers)
+
+```bash
+make build
 ```
 
 ---
-## Run Tox tests and build the wheels
+## Run tests
 
-```
-pip install -r requirements-build.txt
-tox -r
+```bash
+# Run unit tests (automatically installs Poetry and dependencies)
+make test
+
+# Run tests with coverage reporting
+make test-coverage
+
+# Run yamllint on GitHub workflow files
+make yamllint
+
+# Clean test artifacts and build files
+make clean
 ```

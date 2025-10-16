@@ -12,19 +12,27 @@ defaults:
 
 jobs:
   lint:
-    name: Run yamllint with common config
+    name: Run yamllint on workflows
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install yamllint
+        run: poetry install --only dev
       - name: Run yamllint
-        run: yamllint -c .github/linters/.yaml-lint.yaml .github/
+        run: make yamllint
 
   build:
     needs: lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.13, 3.12, 3.11, "3.10"]
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout source
@@ -36,28 +44,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-build.txt
+        run: make install-test-deps
 
-      - id: ToxSetting
-        run: |
-          if [[ "${{ matrix.python-version }}" == "3.13" ]]
-          then
-            echo "toxenv=py313" >> $GITHUB_OUTPUT
-          elif [[ "${{ matrix.python-version }}" == "3.12" ]]
-          then
-            echo "toxenv=py312" >> $GITHUB_OUTPUT
-          elif [[ "${{ matrix.python-version }}" == "3.11" ]]
-          then
-            echo "toxenv=py311" >> $GITHUB_OUTPUT
-          elif [[ "${{ matrix.python-version }}" == "3.10" ]]
-          then
-            echo "toxenv=py310" >> $GITHUB_OUTPUT
-          else
-            exit 1
-          fi
+      - name: Run tests with coverage
+        run: make test-coverage
 
-      - name: Test with tox
-        run: |
-          tox -r -e ${{ steps.ToxSetting.outputs.toxenv }}
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.13'
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
