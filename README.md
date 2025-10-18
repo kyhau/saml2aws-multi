@@ -1,24 +1,42 @@
 # saml2aws-multi
 
-[![githubactions](https://github.com/kyhau/saml2aws-multi/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/build-and-test.yml)
-[![codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/main/graph/badge.svg)](https://app.codecov.io/gh/kyhau/saml2aws-multi/tree/main)
-[![CodeQL](https://github.com/kyhau/saml2aws-multi/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/codeql-analysis.yml)
-[![SecretsScan](https://github.com/kyhau/saml2aws-multi/actions/workflows/secrets-scan.yml/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/secrets-scan.yml)
+[![CI](https://github.com/kyhau/saml2aws-multi/actions/workflows/ci.yml/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/ci.yml)
+[![Codecov](https://codecov.io/gh/kyhau/saml2aws-multi/branch/main/graph/badge.svg)](https://codecov.io/gh/kyhau/saml2aws-multi)
+[![CodeQL](https://github.com/kyhau/saml2aws-multi/workflows/CodeQL/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/codeql-analysis.yml)
+[![Snyk Checks](https://github.com/kyhau/saml2aws-multi/workflows/Snyk%20Checks/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/snyk.yml)
+[![Secrets Scan](https://github.com/kyhau/saml2aws-multi/workflows/Secrets%20Scan/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/secrets-scan.yml)
+![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)
+![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/kyhau/saml2aws-multi)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
 
-This is a helper script providing an easy-to-use command line interface to support login and retrieve AWS temporary credentials for multiple roles of different accounts with [saml2aws](https://github.com/Versent/saml2aws).
+A helper script providing an easy-to-use command line interface to login and retrieve AWS temporary credentials for multiple roles across different accounts using [saml2aws](https://github.com/Versent/saml2aws).
 
 ![Example-RoleName](docs/Example-RoleName.png)
 
 All notable changes to this project will be documented in [CHANGELOG](./CHANGELOG.md).
 
----
-## Built with
-- Python - support Python 3.10, 3.11, 3.12, 3.13.
-- [CodeQL](https://codeql.github.com) is [enabled](.github/workflows/codeql-analysis.yml) in this repository.
-- [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates) is [enabled](.github/dependabot.yml) for auto dependency updates.
-- [Gitleaks](https://github.com/gitleaks/gitleaks) and [TruffleHog](https://github.com/trufflesecurity/trufflehog) are enabled in this GitHub Actions [workflow](.github/workflows/secrets-scan.yml) for detecting and preventing hardcoded secrets.
-- [Snyk](https://github.com/snyk/actions) is enabled for vulnerability scanning and auto pull-request.
+**Supports Python 3.10, 3.11, 3.12, 3.13**
+
+## ✨ Features
+
+### 🔧 Development Tools
+- **[Poetry](https://python-poetry.org/)** - Modern dependency management
+- **[Makefile](Makefile)** - Convenient command shortcuts for common tasks
+- **[pytest](https://pytest.org/)** - Testing framework with coverage reporting
+- **[black](https://black.readthedocs.io/)** - Code formatting
+- **[flake8](https://flake8.pycqa.org/)** - Python code linting
+
+### 🔐 Security & Code Quality
+- **[CodeQL](https://codeql.github.com)** - Automated security analysis ([workflow](.github/workflows/codeql-analysis.yml))
+- **[Secrets Scan](https://github.com/gitleaks/gitleaks)** - Gitleaks and TruffleHog for detecting hardcoded secrets ([workflow](.github/workflows/secrets-scan.yml))
+- **[Snyk](https://snyk.io/)** - Vulnerability scanning ([workflow](.github/workflows/snyk.yml))
+- **[Dependabot](https://docs.github.com/en/code-security/dependabot)** - Automated dependency updates ([config](.github/dependabot.yml))
+
+### 🚀 CI/CD
+- **[GitHub Actions](https://github.com/features/actions)** - Automated testing across Python 3.10-3.13
+- **[Codecov](https://codecov.io/)** - Code coverage reporting
+- **Stale Issue Management** - Automatically closes inactive issues
 
 ---
 ## Usage
@@ -113,82 +131,138 @@ Commands:
     ![Example-RoleName-AccountAlias](docs/Example-RoleName-AccountAlias.png)
 
 ---
-## Installation
+## 🚀 Installation
 
 ### Prerequisites
 
-1. Install [saml2aws](https://github.com/Versent/saml2aws). See also
-   [install-saml2aws.sh](install-saml2aws.sh) for Linux, or
-   [Install-saml2aws.ps1](Install-saml2aws.ps1) for Windows.
+Before installing, ensure you have:
 
-2. Create `saml2aws` config file (`~/.saml2aws`) by running `saml2aws configure`.
+1. **Python 3.10+** installed
+2. **[saml2aws](https://github.com/Versent/saml2aws)** installed
+   - See [install-saml2aws.sh](install-saml2aws.sh) for a Linux installation script
+   - For other platforms, follow the [official installation guide](https://github.com/Versent/saml2aws#install)
+3. **saml2aws config file** (`~/.saml2aws`) - Run `saml2aws configure` to create
 
-### Option 1: Install globally with pipx (Recommended for end users)
+### Installation Options
 
-[pipx](https://pipx.pypa.io/) installs the CLI tool in an isolated environment while making it globally available.
+Choose the installation method that best fits your use case:
+
+#### Option 1: pipx (Recommended for end users)
+
+[pipx](https://pipx.pypa.io/) installs the CLI in an isolated environment while making it globally available:
 
 ```bash
-# Install pipx if you don't have it
+# Install pipx if needed
 pip install pipx
 
-# Install from local directory
+# Install saml2awsmulti
 pipx install .
 
-# Now you can run awslogin from anywhere
+# Run from anywhere
 awslogin --help
 awslogin
 ```
 
-### Option 2: Install globally with pip
+#### Option 2: pip (Simple installation)
 
 ```bash
-# Install from local directory
+# Install directly with pip
 pip install .
 
-# Run awslogin
+# Run the CLI
 awslogin --help
 awslogin
 ```
 
-### Option 3: Development installation with Poetry
+#### Option 3: Development Installation
 
 For contributing or development work:
 
 ```bash
-# Install dependencies and the package in editable mode
-make install-deps
+# Quick setup (recommended for first-time setup)
+make setup-init
 
-# Run using Poetry
+# Manual setup (alternative)
+make setup-venv    # Configure Poetry virtualenv
+make install-all   # Install all dependencies
+
+# Run with Poetry
 poetry run awslogin --help
 poetry run awslogin
 
-# Or activate Poetry's virtualenv first
+# Or activate the virtualenv
 poetry shell
 awslogin
 
-# Show all available targets
+# View all available commands
 make help
 ```
 
-### Build distribution packages (for maintainers)
+## 📋 Development Workflow
+
+### Common Commands
 
 ```bash
-make build
+make setup-init         # First-time setup (configure, lock, install everything)
+make help               # Show all available commands
+make install-all        # Install all dependencies (main, dev, test)
+make test               # Run tests without coverage
+make test-with-coverage # Run tests with coverage
+make format-python      # Auto-format Python code
+make lint-python        # Lint Python code
+make lint-yaml          # Lint YAML files
+make pre-commit         # Run all quality checks (format, lint, test)
+make build              # Build the package
+make clean              # Clean build artifacts
 ```
 
----
-## Run tests
+### Running Tests
 
 ```bash
-# Run unit tests (automatically installs Poetry and dependencies)
+# Run tests with coverage
+make test-with-coverage
+
+# Run tests only
 make test
 
-# Run tests with coverage reporting
-make test-coverage
+# Format and lint code
+make format-python
+make lint-python
+make lint-yaml
 
-# Run yamllint on GitHub workflow files
-make yamllint
+# Run all quality checks before committing
+make pre-commit
+```
 
-# Clean test artifacts and build files
-make clean
+### Managing Dependencies
+
+```bash
+# Update dependencies to latest compatible versions
+make update-deps
+
+# Regenerate lock file
+make lock
+```
+
+## 🏗️ Project Structure
+
+```
+saml2aws-multi/
+├── .github/
+│   ├── workflows/        # CI/CD workflows
+│   └── dependabot.yml    # Dependency updates config
+├── saml2awsmulti/        # Main Python package
+│   ├── __init__.py
+│   ├── aws_login.py      # Main CLI logic
+│   ├── file_io.py
+│   ├── saml2aws_helper.py
+│   └── selector.py
+├── tests/                # Unit tests
+│   ├── test_aws_login.py
+│   ├── test_file_io.py
+│   ├── test_saml2aws_helper.py
+│   └── test_selector.py
+├── pyproject.toml        # Project metadata and dependencies
+├── Makefile              # Build and test commands
+└── README.md             # This file
 ```

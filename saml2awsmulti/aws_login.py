@@ -1,6 +1,8 @@
 """
-A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts.
+A helper script using saml2aws to login and retrieve AWS temporary credentials
+for multiple roles in different accounts.
 """
+
 import json
 import logging
 from collections import OrderedDict
@@ -10,12 +12,15 @@ from pathlib import Path
 import click
 from boto3.session import Session
 
-from saml2awsmulti.file_io import (get_aws_profiles, read_csv,
-                                   read_lines_from_file, write_aws_profiles,
-                                   write_csv)
+from saml2awsmulti.file_io import (
+    get_aws_profiles,
+    read_csv,
+    read_lines_from_file,
+    write_aws_profiles,
+    write_csv,
+)
 from saml2awsmulti.saml2aws_helper import Saml2AwsHelper
-from saml2awsmulti.selector import (prompt_profile_selection,
-                                    prompt_roles_selection)
+from saml2awsmulti.selector import prompt_profile_selection, prompt_roles_selection
 
 logging.basicConfig(format="%(message)s")
 logging.getLogger().setLevel(logging.INFO)
@@ -39,7 +44,9 @@ def create_profile_name_from_role_arn(role_arn, account_alias, profile_name_form
     return profile_name
 
 
-def create_profile_rolearn_dict(saml2aws_helper, profile_name_format, refresh_cached_roles, keywords):
+def create_profile_rolearn_dict(
+    saml2aws_helper, profile_name_format, refresh_cached_roles, keywords
+):
     """Create an OrderedDict containing a full or shortlisted of {profile_name: role_arn}"""
     if refresh_cached_roles or not exists(ALL_ROLES_FILE):
         rolearn_alias_list = saml2aws_helper.run_saml2aws_list_roles()
@@ -49,10 +56,15 @@ def create_profile_rolearn_dict(saml2aws_helper, profile_name_format, refresh_ca
 
     profile_rolearn_dict = OrderedDict()
     for role_arn, account_alias in rolearn_alias_list:
-        profile_name = create_profile_name_from_role_arn(role_arn, account_alias, profile_name_format)
+        profile_name = create_profile_name_from_role_arn(
+            role_arn, account_alias, profile_name_format
+        )
 
         # If keywords defined, return only roles with profile_name matching any of the keywords
-        if len(keywords) == 0 or len([keyword for keyword in keywords if keyword in profile_name]) > 0:
+        if (
+            len(keywords) == 0
+            or len([keyword for keyword in keywords if keyword in profile_name]) > 0
+        ):
             profile_rolearn_dict[profile_name] = role_arn
 
     return profile_rolearn_dict
@@ -73,24 +85,63 @@ def pre_select_options(profile_rolearn_dict, keywords):
     return pre_select_profiles
 
 
-@click.group(invoke_without_command=True, help="Get credentials for multiple accounts with saml2aws")
-@click.option("--shortlisted", "-l", multiple=True, help="Show only roles with the given keyword(s); e.g. -l keyword1 -l keyword2...")
-@click.option("--pre-select", "-s", multiple=True, help="Pre-select roles with the given keyword(s); e.g. -s keyword1 -s keyword2...")
-@click.option("--profile-name-format", "-n", default=DEFAULT_PROFILE_NAME_FORMAT, show_default=True,
-    help="Set the profile name format.", type=click.Choice(PROFILE_NAME_FORMATS, case_sensitive=False))
-@click.option("--refresh-cached-roles", "-r", is_flag=True, show_default=True,
-    help=f"Re-retrieve the roles associated to the username and password you provided and save the roles into {ALL_ROLES_FILE}.")
+@click.group(
+    invoke_without_command=True, help="Get credentials for multiple accounts with saml2aws"
+)
+@click.option(
+    "--shortlisted",
+    "-l",
+    multiple=True,
+    help="Show only roles with the given keyword(s); e.g. -l keyword1 -l keyword2...",
+)
+@click.option(
+    "--pre-select",
+    "-s",
+    multiple=True,
+    help="Pre-select roles with the given keyword(s); e.g. -s keyword1 -s keyword2...",
+)
+@click.option(
+    "--profile-name-format",
+    "-n",
+    default=DEFAULT_PROFILE_NAME_FORMAT,
+    show_default=True,
+    help="Set the profile name format.",
+    type=click.Choice(PROFILE_NAME_FORMATS, case_sensitive=False),
+)
+@click.option(
+    "--refresh-cached-roles",
+    "-r",
+    is_flag=True,
+    show_default=True,
+    help=(
+        f"Re-retrieve the roles associated to the username and password you "
+        f"provided and save the roles into {ALL_ROLES_FILE}."
+    ),
+)
 @click.option("--session-duration", "-t", help="Set the session duration in seconds.")
-@click.option("--browser-autofill", "-b", is_flag=True, show_default=True, help="Enable browser-autofill.")
+@click.option(
+    "--browser-autofill", "-b", is_flag=True, show_default=True, help="Enable browser-autofill."
+)
 @click.option("--debug", "-d", is_flag=True, show_default=True, help="Enable debug mode.")
 @click.pass_context
-def main_cli(ctx, shortlisted, pre_select, profile_name_format, refresh_cached_roles, session_duration, browser_autofill, debug):
+def main_cli(
+    ctx,
+    shortlisted,
+    pre_select,
+    profile_name_format,
+    refresh_cached_roles,
+    session_duration,
+    browser_autofill,
+    debug,
+):
     if debug:
         logging.getLogger().setLevel(logging.DEBUG)
 
     if ctx.invoked_subcommand is None:
         try:
-            saml2aws_helper = Saml2AwsHelper(SAML2AWS_CONFIG_FILE, session_duration, browser_autofill)
+            saml2aws_helper = Saml2AwsHelper(
+                SAML2AWS_CONFIG_FILE, session_duration, browser_autofill
+            )
 
             profile_rolearn_dict = create_profile_rolearn_dict(
                 saml2aws_helper,
@@ -117,6 +168,7 @@ def main_cli(ctx, shortlisted, pre_select, profile_name_format, refresh_cached_r
                 logging.error(f"Error: {e} Aborted.")
         except Exception:
             import traceback
+
             traceback.print_exc()
 
 

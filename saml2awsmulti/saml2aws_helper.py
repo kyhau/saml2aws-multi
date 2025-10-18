@@ -44,7 +44,7 @@ class Saml2AwsHelper:
                 try:
                     if "(" in line:
                         # Account: ALIAS (ACCOUNT_NUMBER)
-                        acc_name, acc_id = (line.replace("(", "").replace(")", "").split(" ")[1:])
+                        acc_name, acc_id = line.replace("(", "").replace(")", "").split(" ")[1:]
                     else:
                         # Account: ACCOUNT_NUMBER
                         acc_name, acc_id = "None", line.split(" ")[1]
@@ -67,7 +67,10 @@ class Saml2AwsHelper:
         logging.info(f"Adding {profile_name}...")
 
         uname, upass = self.get_credentials()
-        cmd = f"saml2aws login --role={role_arn} -p {profile_name} --username={uname} --password={upass} --skip-prompt"
+        cmd = (
+            f"saml2aws login --role={role_arn} -p {profile_name} "
+            f"--username={uname} --password={upass} --skip-prompt"
+        )
         if self._session_duration:
             cmd = f"{cmd} --session-duration={self._session_duration}"
 
