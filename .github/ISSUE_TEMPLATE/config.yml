@@ -1,7 +1,7 @@
 blank_issues_enabled: true
 contact_links:
   - name: Question or Discussion
-    url: https://github.com/kyhau/.github/discussions
+    url: 
     about: Ask questions or start discussions about the project
   - name: Security Vulnerability
     url: https://github.com/kyhau/.github/security/advisories/new
