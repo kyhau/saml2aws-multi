@@ -54,7 +54,7 @@ test-with-coverage: install-test ## Run unit tests with coverage reporting
 	@$(PYTEST) $(TEST_PATH) -v --cov=$(PACKAGE_NAME) --cov-report=xml:coverage.xml --cov-report=term-missing --junit-xml junit.xml
 
 # Code quality
-lint-python: install-test ## Lint Python code with flake8
+lint-python: install-dev ## Lint Python code with flake8
 	@$(POETRY) run flake8 --max-line-length=100 $(PACKAGE_NAME)/
 
 lint-yaml: install-dev ## Lint YAML files with yamllint
