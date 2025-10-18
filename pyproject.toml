@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "saml2awsmulti"
-version = "1.1.1"
+version = "1.2.0"
 description = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,6 +14,7 @@ authors = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -32,40 +33,9 @@ Repository = "https://github.com/kyhau/saml2aws-multi"
 [project.scripts]
 awslogin = "saml2awsmulti.aws_login:main_cli"
 
-[tool.setuptools.packages.find]
-exclude = ["tests*", "saml2awsmulti.tests*"]
-
-[tool.setuptools]
-zip-safe = false
-
-# Test dependencies
-[project.optional-dependencies]
-test = [
-    "pytest~=8.4",
-    "pytest-cov~=6.3",
-    "pytest-mock~=3.15",
-    "pytest-gitignore~=1.3",
-    "coverage~=7.10",
-    "mock~=5.2",
-    "flake8~=7.3",
-]
-
-# Build dependencies (for development)
-dev = [
-    "setuptools~=80.9",
-    "wheel",
-]
-
 # Poetry-specific configuration
 [tool.poetry]
-name = "saml2awsmulti"
-version = "1.1.1"
-description = "A helper script using saml2aws to login and retrieve AWS temporary credentials for multiple roles in different accounts."
-authors = ["kyhau <virtualda+github@gmail.com>"]
-license = "MIT"
-readme = "README.md"
 packages = [{include = "saml2awsmulti"}]
-exclude = ["saml2awsmulti/tests"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
@@ -80,12 +50,8 @@ pytest-mock = "~3.15"
 pytest-gitignore = "~1.3"
 coverage = "~7.10"
 mock = "~5.2"
-flake8 = "~7.3"
 
 [tool.poetry.group.dev.dependencies]
-setuptools = "~80.9"
-wheel = "*"
+black = "~25.9"
+flake8 = "~7.3"
 yamllint = "~1.35"
-
-[tool.poetry.scripts]
-awslogin = "saml2awsmulti.aws_login:main_cli"
