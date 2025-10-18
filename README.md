@@ -264,5 +264,19 @@ saml2aws-multi/
 │   └── test_selector.py
 ├── pyproject.toml        # Project metadata and dependencies
 ├── Makefile              # Build and test commands
+├── CHANGELOG.md          # Version history and changes
+├── CODE_OF_CONDUCT.md    # Community guidelines
+├── CONTRIBUTING.md       # Contribution guidelines
+├── SECURITY.md           # Security policy
 └── README.md             # This file
 ```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see:
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) - Community standards
+
+## 🔒 Security
+
+For security issues, please see [SECURITY.md](SECURITY.md) for our security policy and reporting guidelines.
