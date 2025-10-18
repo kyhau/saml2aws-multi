@@ -57,9 +57,9 @@ body:
         - Python version: [e.g., 3.11.5]
         - Project version: [e.g., 1.0.0]
       value: |
-        - OS: 
-        - Python version: 
-        - Project version: 
+        - OS:
+        - Python version:
+        - Project version:
     validations:
       required: true
 
