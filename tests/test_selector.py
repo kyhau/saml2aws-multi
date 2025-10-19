@@ -1,13 +1,12 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
-from saml2awsmulti.selector import (prompt_profile_selection,
-                                    prompt_roles_selection)
+from saml2awsmulti.selector import prompt_profile_selection, prompt_roles_selection
 
 
 class TestPromptProfileSelection:
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_profile_selection_success(self, mock_inquirer):
         mock_inquirer.select.return_value.execute.return_value = "dev"
         options = ["dev", "test", "prod"]
@@ -29,7 +28,7 @@ class TestPromptProfileSelection:
         with pytest.raises(ValueError, match="No profiles retrieved for selection"):
             prompt_profile_selection(None)
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_profile_selection_single_option(self, mock_inquirer):
         mock_inquirer.select.return_value.execute.return_value = "dev"
         options = ["dev"]
@@ -39,7 +38,7 @@ class TestPromptProfileSelection:
         assert result == "dev"
         mock_inquirer.select.assert_called_once()
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_profile_selection_cancel(self, mock_inquirer):
         mock_inquirer.select.return_value.execute.return_value = None
         options = ["dev", "test", "prod"]
@@ -50,7 +49,7 @@ class TestPromptProfileSelection:
 
 
 class TestPromptRolesSelection:
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_roles_selection_success(self, mock_inquirer):
         mock_inquirer.checkbox.return_value.execute.return_value = ["dev", "test"]
         options = ["dev", "test", "prod"]
@@ -61,7 +60,7 @@ class TestPromptRolesSelection:
         assert result == ["dev", "test"]
         mock_inquirer.checkbox.assert_called_once()
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_roles_selection_with_choices(self, mock_inquirer):
         mock_inquirer.checkbox.return_value.execute.return_value = ["dev"]
         options = ["dev", "test", "prod"]
@@ -71,7 +70,7 @@ class TestPromptRolesSelection:
 
         # Verify that choices were created correctly
         call_args = mock_inquirer.checkbox.call_args
-        choices = call_args[1]['choices']
+        choices = call_args[1]["choices"]
 
         # Check that choices have correct enabled state
         assert len(choices) == 3
@@ -81,7 +80,7 @@ class TestPromptRolesSelection:
         assert choices[1].enabled is False
         assert choices[2].enabled is False
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_roles_selection_no_last_selected(self, mock_inquirer):
         mock_inquirer.checkbox.return_value.execute.return_value = ["test"]
         options = ["dev", "test", "prod"]
@@ -93,12 +92,12 @@ class TestPromptRolesSelection:
 
         # Verify that all choices are disabled
         call_args = mock_inquirer.checkbox.call_args
-        choices = call_args[1]['choices']
+        choices = call_args[1]["choices"]
 
         for choice in choices:
             assert choice.enabled is False
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_roles_selection_multiple_last_selected(self, mock_inquirer):
         mock_inquirer.checkbox.return_value.execute.return_value = ["dev", "prod"]
         options = ["dev", "test", "prod"]
@@ -110,11 +109,11 @@ class TestPromptRolesSelection:
 
         # Verify that correct choices are enabled
         call_args = mock_inquirer.checkbox.call_args
-        choices = call_args[1]['choices']
+        choices = call_args[1]["choices"]
 
         assert choices[0].enabled is True  # dev
         assert choices[1].enabled is False  # test
-        assert choices[2].enabled is True   # prod
+        assert choices[2].enabled is True  # prod
 
     def test_prompt_roles_selection_empty_options(self):
         with pytest.raises(ValueError, match="No roles retrieved for selection"):
@@ -124,7 +123,7 @@ class TestPromptRolesSelection:
         with pytest.raises(ValueError, match="No roles retrieved for selection"):
             prompt_roles_selection(None, [])
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_roles_selection_cancel(self, mock_inquirer):
         mock_inquirer.checkbox.return_value.execute.return_value = []
         options = ["dev", "test", "prod"]
@@ -134,7 +133,7 @@ class TestPromptRolesSelection:
 
         assert result == []
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_roles_selection_transformer(self, mock_inquirer):
         mock_inquirer.checkbox.return_value.execute.return_value = ["dev", "test"]
         options = ["dev", "test", "prod"]
@@ -144,7 +143,7 @@ class TestPromptRolesSelection:
 
         # Verify that transformer function is set
         call_args = mock_inquirer.checkbox.call_args
-        transformer = call_args[1]['transformer']
+        transformer = call_args[1]["transformer"]
 
         # Test the transformer function
         result = transformer(["dev", "test"])
@@ -156,7 +155,7 @@ class TestPromptRolesSelection:
         result = transformer([])
         assert result == "0 role(s) selected"
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_roles_selection_cycle_enabled(self, mock_inquirer):
         mock_inquirer.checkbox.return_value.execute.return_value = ["dev"]
         options = ["dev", "test", "prod"]
@@ -166,9 +165,9 @@ class TestPromptRolesSelection:
 
         # Verify that cycle is enabled
         call_args = mock_inquirer.checkbox.call_args
-        assert call_args[1]['cycle'] is True
+        assert call_args[1]["cycle"] is True
 
-    @patch('saml2awsmulti.selector.inquirer')
+    @patch("saml2awsmulti.selector.inquirer")
     def test_prompt_roles_selection_message(self, mock_inquirer):
         mock_inquirer.checkbox.return_value.execute.return_value = ["dev"]
         options = ["dev", "test", "prod"]
@@ -178,4 +177,4 @@ class TestPromptRolesSelection:
 
         # Verify the message
         call_args = mock_inquirer.checkbox.call_args
-        assert call_args[1]['message'] == "Please choose the role"
+        assert call_args[1]["message"] == "Please choose the role"
