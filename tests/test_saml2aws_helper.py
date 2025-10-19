@@ -1,5 +1,4 @@
-import subprocess
-from unittest.mock import Mock, mock_open, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -15,9 +14,9 @@ class TestSaml2AwsHelper:
         assert helper._uname is None
         assert helper._upass is None
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('builtins.input')
-    @patch('getpass.getpass')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("builtins.input")
+    @patch("getpass.getpass")
     def test_get_credentials_from_config(self, mock_getpass, mock_input, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "<test_password>"
@@ -30,9 +29,9 @@ class TestSaml2AwsHelper:
         mock_input.assert_not_called()
         mock_getpass.assert_called_once()
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('builtins.input')
-    @patch('getpass.getpass')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("builtins.input")
+    @patch("getpass.getpass")
     def test_get_credentials_no_config_username(self, mock_getpass, mock_input, mock_load_config):
         mock_load_config.return_value = {}
         mock_input.return_value = "testuser"
@@ -46,8 +45,8 @@ class TestSaml2AwsHelper:
         mock_input.assert_called_once_with("Username: ")
         mock_getpass.assert_called_once()
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
     def test_get_credentials_cached(self, mock_getpass, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
@@ -63,9 +62,9 @@ class TestSaml2AwsHelper:
         # Should only call getpass once
         mock_getpass.assert_called_once()
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
     def test_run_saml2aws_list_roles_success(self, mock_popen, mock_getpass, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
@@ -76,7 +75,7 @@ class TestSaml2AwsHelper:
             b"Account: aws-01 (123456789012)\n",
             b"arn:aws:iam::123456789012:role/dev\n",
             b"Account: aws-02 (213456789012)\n",
-            b"arn:aws:iam::213456789012:role/test\n"
+            b"arn:aws:iam::213456789012:role/test\n",
         ]
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
@@ -86,15 +85,17 @@ class TestSaml2AwsHelper:
 
         expected = [
             ("arn:aws:iam::123456789012:role/dev", "aws-01"),
-            ("arn:aws:iam::213456789012:role/test", "aws-02")
+            ("arn:aws:iam::213456789012:role/test", "aws-02"),
         ]
         assert result == expected
         mock_popen.assert_called_once()
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
-    def test_run_saml2aws_list_roles_no_account_alias(self, mock_popen, mock_getpass, mock_load_config):
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
+    def test_run_saml2aws_list_roles_no_account_alias(
+        self, mock_popen, mock_getpass, mock_load_config
+    ):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
 
@@ -102,7 +103,7 @@ class TestSaml2AwsHelper:
         mock_process = Mock()
         mock_process.stdout.readlines.return_value = [
             b"Account: 123456789012\n",
-            b"arn:aws:iam::123456789012:role/dev\n"
+            b"arn:aws:iam::123456789012:role/dev\n",
         ]
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
@@ -113,18 +114,16 @@ class TestSaml2AwsHelper:
         expected = [("arn:aws:iam::123456789012:role/dev", "None")]
         assert result == expected
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
     def test_run_saml2aws_list_roles_no_roles(self, mock_popen, mock_getpass, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
 
         # Mock subprocess output with no roles
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [
-            b"Account: aws-01 (123456789012)\n"
-        ]
+        mock_process.stdout.readlines.return_value = [b"Account: aws-01 (123456789012)\n"]
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
 
@@ -133,9 +132,9 @@ class TestSaml2AwsHelper:
         with pytest.raises(ValueError, match="Failed to retrieve roles with saml2aws"):
             helper.run_saml2aws_list_roles()
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
     def test_run_saml2aws_list_roles_parse_error(self, mock_popen, mock_getpass, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
@@ -144,7 +143,7 @@ class TestSaml2AwsHelper:
         mock_process = Mock()
         mock_process.stdout.readlines.return_value = [
             b"Account: malformed line\n",
-            b"arn:aws:iam::123456789012:role/dev\n"
+            b"arn:aws:iam::123456789012:role/dev\n",
         ]
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
@@ -154,9 +153,9 @@ class TestSaml2AwsHelper:
         with pytest.raises(KeyError):
             helper.run_saml2aws_list_roles()
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
     def test_run_saml2aws_login_success(self, mock_popen, mock_getpass, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
@@ -172,10 +171,12 @@ class TestSaml2AwsHelper:
         assert result == 0
         mock_popen.assert_called_once()
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
-    def test_run_saml2aws_login_with_session_duration(self, mock_popen, mock_getpass, mock_load_config):
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
+    def test_run_saml2aws_login_with_session_duration(
+        self, mock_popen, mock_getpass, mock_load_config
+    ):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
 
@@ -191,10 +192,12 @@ class TestSaml2AwsHelper:
         call_args = mock_popen.call_args[0][0]
         assert "--session-duration=7200" in call_args
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
-    def test_run_saml2aws_login_with_browser_autofill(self, mock_popen, mock_getpass, mock_load_config):
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
+    def test_run_saml2aws_login_with_browser_autofill(
+        self, mock_popen, mock_getpass, mock_load_config
+    ):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
 
@@ -210,9 +213,9 @@ class TestSaml2AwsHelper:
         call_args = mock_popen.call_args[0][0]
         assert "--browser-autofill" in call_args
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
     def test_run_saml2aws_login_failure(self, mock_popen, mock_getpass, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
@@ -227,9 +230,9 @@ class TestSaml2AwsHelper:
 
         assert result == 1
 
-    @patch('saml2awsmulti.saml2aws_helper.load_saml2aws_config')
-    @patch('getpass.getpass')
-    @patch('subprocess.Popen')
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
     def test_run_saml2aws_login_command_format(self, mock_popen, mock_getpass, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
@@ -252,7 +255,7 @@ class TestSaml2AwsHelper:
             "--password=testpass",
             "--skip-prompt",
             "--session-duration=3600",
-            "--browser-autofill"
+            "--browser-autofill",
         ]
 
         for part in expected_parts:
