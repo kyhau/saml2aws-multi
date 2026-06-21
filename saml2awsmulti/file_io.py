@@ -29,11 +29,14 @@ def read_lines_from_file(filename):
 
 
 def load_saml2aws_config(filename):
+    # Use ConfigParser so values containing '=' (e.g. URLs with query strings) are parsed correctly.
+    cp = ConfigParser(allow_no_value=True)
+    cp.read(filename)
     configs = {}
-    for row in read_csv(filename, "="):
-        w = [f.strip() for f in row]
-        if len(w) > 1 and w[1]:
-            configs[w[0]] = w[1]
+    for section in cp.sections():
+        for key, value in cp.items(section):
+            if value:
+                configs[key] = value
     return configs
 
 

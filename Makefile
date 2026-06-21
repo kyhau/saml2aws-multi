@@ -61,7 +61,7 @@ lint-yaml: install-dev ## Lint YAML files with yamllint
 	@$(POETRY) run yamllint -c .github/linters/.yaml-lint.yml .github/
 
 format-python: install-dev ## Format Python code with black
-	@$(POETRY) run black --line-length=100 $(PACKAGE_NAME)/ $(TEST_PATH)
+	@$(POETRY) run black $(PACKAGE_NAME)/ $(TEST_PATH)
 
 # Pre-commit checks
 pre-commit: format-python lint-python lint-yaml test-with-coverage ## Run all quality checks before committing

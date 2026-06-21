@@ -1,3 +1,4 @@
+import logging
 import json
 from unittest.mock import Mock, mock_open, patch
 
@@ -5,12 +6,14 @@ from click.testing import CliRunner
 
 from saml2awsmulti.aws_login import (
     chained,
+    clean,
     create_profile_name_from_role_arn,
     create_profile_rolearn_dict,
     main_cli,
     pre_select_options,
     switch,
     whoami,
+    _is_expired,
 )
 
 
@@ -138,6 +141,20 @@ class TestPreSelectOptions:
 
         assert result == ["dev", "test"]
 
+    @patch("saml2awsmulti.aws_login.read_lines_from_file")
+    def test_no_duplicates_when_last_selected_matches_keyword(self, mock_read_lines):
+        """A profile in last-selected that also matches a keyword must appear only once."""
+        mock_read_lines.return_value = ["dev"]
+        profile_rolearn_dict = {
+            "dev": "arn:aws:iam::123456789012:role/dev",
+            "test": "arn:aws:iam::213456789012:role/test",
+        }
+
+        result = pre_select_options(profile_rolearn_dict, ["dev"])
+
+        assert result == ["dev"]
+        assert result.count("dev") == 1
+
 
 class TestMainCli:
     @patch("saml2awsmulti.aws_login.Saml2AwsHelper")
@@ -191,6 +208,48 @@ class TestMainCli:
         assert result.exit_code == 0
         assert "Nothing selected. Aborted." in caplog.text
         mock_helper.run_saml2aws_login.assert_not_called()
+
+    @patch("saml2awsmulti.aws_login.Saml2AwsHelper")
+    @patch("saml2awsmulti.aws_login.create_profile_rolearn_dict")
+    @patch("saml2awsmulti.aws_login.pre_select_options")
+    @patch("saml2awsmulti.aws_login.prompt_roles_selection")
+    def test_main_cli_debug_flag(
+        self, mock_prompt, mock_pre_select, mock_create_dict, mock_helper_class
+    ):
+        runner = CliRunner()
+        mock_helper_class.return_value = Mock()
+        mock_create_dict.return_value = {}
+        mock_pre_select.return_value = []
+        mock_prompt.return_value = []
+
+        result = runner.invoke(main_cli, ["--debug"])
+
+        assert result.exit_code == 0
+        assert logging.getLogger().level == logging.DEBUG
+
+    @patch("saml2awsmulti.aws_login.Saml2AwsHelper")
+    def test_main_cli_file_not_found_saml2aws_config_path(self, mock_helper_class, caplog):
+        from saml2awsmulti.aws_login import SAML2AWS_CONFIG_FILE
+
+        runner = CliRunner()
+        mock_helper_class.side_effect = FileNotFoundError(
+            2, "No such file or directory", SAML2AWS_CONFIG_FILE
+        )
+
+        with caplog.at_level("ERROR"):
+            result = runner.invoke(main_cli, [])
+
+        assert result.exit_code == 0
+        assert "github.com/Versent/saml2aws" in caplog.text
+
+    @patch("saml2awsmulti.aws_login.Saml2AwsHelper")
+    def test_main_cli_generic_exception(self, mock_helper_class):
+        runner = CliRunner()
+        mock_helper_class.side_effect = RuntimeError("unexpected error")
+
+        result = runner.invoke(main_cli, [])
+
+        assert result.exit_code == 0
 
 
 class TestChainedCommand:
@@ -264,6 +323,22 @@ class TestSwitchCommand:
         assert result.exit_code == 0
         assert "No non default aws profile found" in caplog.text
 
+    @patch("saml2awsmulti.aws_login.get_aws_profiles")
+    @patch("saml2awsmulti.aws_login.prompt_profile_selection")
+    def test_switch_nothing_selected(self, mock_prompt, mock_get_profiles, caplog):
+        runner = CliRunner()
+        mock_config = Mock()
+        mock_config.sections.return_value = ["default", "dev"]
+        mock_config.__getitem__ = Mock(return_value={})
+        mock_get_profiles.return_value = mock_config
+        mock_prompt.return_value = None
+
+        with caplog.at_level("INFO"):
+            result = runner.invoke(switch, [])
+
+        assert result.exit_code == 0
+        assert "Nothing selected. Aborted." in caplog.text
+
 
 class TestWhoamiCommand:
     @patch("saml2awsmulti.aws_login.Session")
@@ -312,3 +387,92 @@ class TestWhoamiCommand:
 
         assert result.exit_code == 0
         assert "AWS credentials not found" in caplog.text
+
+
+class TestIsExpired:
+    def _make_config(self, expires_str=None):
+        from configparser import ConfigParser
+
+        cp = ConfigParser()
+        cp.add_section("dev")
+        if expires_str:
+            cp.set("dev", "x_security_token_expires", expires_str)
+        return cp
+
+    def test_no_expiry_field(self):
+        cp = self._make_config()
+        assert _is_expired(cp, "dev") is False
+
+    def test_expired(self):
+        cp = self._make_config("2000-01-01T00:00:00+00:00")
+        assert _is_expired(cp, "dev") is True
+
+    def test_not_expired(self):
+        cp = self._make_config("2099-01-01T00:00:00+00:00")
+        assert _is_expired(cp, "dev") is False
+
+    def test_invalid_expiry_format(self, caplog):
+        cp = self._make_config("not-a-date")
+        with caplog.at_level("WARNING"):
+            result = _is_expired(cp, "dev")
+        assert result is False
+        assert "Could not parse expiry" in caplog.text
+
+
+class TestCleanCommand:
+    @patch("saml2awsmulti.aws_login.write_aws_profiles")
+    @patch("saml2awsmulti.aws_login.get_aws_profiles")
+    def test_clean_removes_expired(self, mock_get, mock_write, caplog):
+        from configparser import ConfigParser
+
+        cp = ConfigParser()
+        cp.add_section("expired")
+        cp.set("expired", "x_security_token_expires", "2000-01-01T00:00:00+00:00")
+        cp.add_section("valid")
+        cp.set("valid", "x_security_token_expires", "2099-01-01T00:00:00+00:00")
+        mock_get.return_value = cp
+
+        runner = CliRunner()
+        with caplog.at_level("INFO"):
+            result = runner.invoke(clean, [])
+
+        assert result.exit_code == 0
+        mock_write.assert_called_once()
+        assert "expired" in caplog.text
+        assert "expired" not in cp.sections()
+        assert "valid" in cp.sections()
+
+    @patch("saml2awsmulti.aws_login.write_aws_profiles")
+    @patch("saml2awsmulti.aws_login.get_aws_profiles")
+    def test_clean_nothing_to_remove(self, mock_get, mock_write, caplog):
+        from configparser import ConfigParser
+
+        cp = ConfigParser()
+        cp.add_section("valid")
+        cp.set("valid", "x_security_token_expires", "2099-01-01T00:00:00+00:00")
+        mock_get.return_value = cp
+
+        runner = CliRunner()
+        with caplog.at_level("INFO"):
+            result = runner.invoke(clean, [])
+
+        assert result.exit_code == 0
+        mock_write.assert_not_called()
+        assert "No expired profiles found" in caplog.text
+
+    @patch("saml2awsmulti.aws_login.write_aws_profiles")
+    @patch("saml2awsmulti.aws_login.get_aws_profiles")
+    def test_clean_skips_default(self, mock_get, mock_write, caplog):
+        from configparser import ConfigParser
+
+        cp = ConfigParser()
+        cp.add_section("default")
+        cp.set("default", "x_security_token_expires", "2000-01-01T00:00:00+00:00")
+        mock_get.return_value = cp
+
+        runner = CliRunner()
+        result = runner.invoke(clean, [])
+
+        assert result.exit_code == 0
+        mock_write.assert_not_called()
+        assert "default" in cp.sections()

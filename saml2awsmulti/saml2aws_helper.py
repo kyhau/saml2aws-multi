@@ -33,12 +33,15 @@ class Saml2AwsHelper:
         accounts_dict = {}
         uname, upass = self.get_credentials()
 
-        cmd = f"saml2aws list-roles --username={uname} --password={upass} --skip-prompt"
+        # Avoid exposing the password in the process list by using --stdin-password.
+        cmd = ["saml2aws", "list-roles", f"--username={uname}", "--skip-prompt", "--stdin-password"]
 
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(
+            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        stdout, _ = p.communicate(input=(upass + "\n").encode())
 
-        for line in p.stdout.readlines():
-            line = line.decode("utf-8").rstrip("\r|\n")
+        for line in stdout.decode("utf-8").splitlines():
             logging.debug(line)
             if line.startswith("Account:"):
                 try:
@@ -55,9 +58,9 @@ class Saml2AwsHelper:
                     logging.error(line)
             elif line.startswith("arn:"):
                 acc_id = line.split(":")[4]
-                roles.append((line, accounts_dict[acc_id]))
-        retval = p.wait()
+                roles.append((line, accounts_dict.get(acc_id, acc_id)))
 
+        retval = p.returncode
         logging.debug(f"Response Code: {retval}")
         if not roles:
             raise ValueError("Failed to retrieve roles with saml2aws.")
@@ -67,20 +70,30 @@ class Saml2AwsHelper:
         logging.info(f"Adding {profile_name}...")
 
         uname, upass = self.get_credentials()
-        cmd = (
-            f"saml2aws login --role={role_arn} -p {profile_name} "
-            f"--username={uname} --password={upass} --skip-prompt"
-        )
+        # Avoid exposing the password in the process list by using --stdin-password.
+        cmd = [
+            "saml2aws",
+            "login",
+            f"--role={role_arn}",
+            "-p",
+            profile_name,
+            f"--username={uname}",
+            "--skip-prompt",
+            "--stdin-password",
+        ]
         if self._session_duration:
-            cmd = f"{cmd} --session-duration={self._session_duration}"
+            cmd.append(f"--session-duration={self._session_duration}")
 
         if self._browser_autofill:
-            cmd = f"{cmd} --browser-autofill"
+            cmd.append("--browser-autofill")
 
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        for line in p.stdout.readlines():
-            logging.debug(line.decode("utf-8").rstrip("\r|\n"))
-        retval = p.wait()
+        p = subprocess.Popen(
+            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        stdout, _ = p.communicate(input=(upass + "\n").encode())
+        for line in stdout.decode("utf-8").splitlines():
+            logging.debug(line)
+        retval = p.returncode
 
         logging.info(f"Response Code: {retval}")
         return retval

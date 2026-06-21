@@ -162,7 +162,7 @@ class TestReadCsv:
 class TestLoadSaml2awsConfig:
     def test_load_saml2aws_config_simple(self):
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            f.write("username=testuser\npassword=testpass\nurl=https://example.com\n")
+            f.write("[default]\nusername=testuser\npassword=testpass\nurl=https://example.com\n")
             temp_file = f.name
 
         try:
@@ -178,7 +178,7 @@ class TestLoadSaml2awsConfig:
 
     def test_load_saml2aws_config_with_whitespace(self):
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            f.write(" username = testuser \n password = testpass \n")
+            f.write("[default]\n username = testuser \n password = testpass \n")
             temp_file = f.name
 
         try:
@@ -190,7 +190,7 @@ class TestLoadSaml2awsConfig:
 
     def test_load_saml2aws_config_empty_values(self):
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            f.write("username=testuser\npassword=\nurl=https://example.com\n")
+            f.write("[default]\nusername=testuser\npassword=\nurl=https://example.com\n")
             temp_file = f.name
 
         try:
@@ -202,12 +202,25 @@ class TestLoadSaml2awsConfig:
 
     def test_load_saml2aws_config_no_equals(self):
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            f.write("username=testuser\ninvalid_line\nurl=https://example.com\n")
+            f.write("[default]\nusername=testuser\ninvalid_line\nurl=https://example.com\n")
             temp_file = f.name
 
         try:
             result = load_saml2aws_config(temp_file)
             expected = {"username": "testuser", "url": "https://example.com"}
+            assert result == expected
+        finally:
+            os.unlink(temp_file)
+
+    def test_load_saml2aws_config_value_with_equals(self):
+        """Values containing '=' (e.g. URLs with query strings) must be preserved."""
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+            f.write("[default]\nusername=testuser\nurl=https://example.com?redirect=true\n")
+            temp_file = f.name
+
+        try:
+            result = load_saml2aws_config(temp_file)
+            expected = {"username": "testuser", "url": "https://example.com?redirect=true"}
             assert result == expected
         finally:
             os.unlink(temp_file)
