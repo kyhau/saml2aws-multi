@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/kyhau/saml2aws-multi/workflows/CodeQL/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/codeql-analysis.yml)
 [![Snyk Checks](https://github.com/kyhau/saml2aws-multi/workflows/Snyk%20Checks/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/snyk.yml)
 [![Secrets Scan](https://github.com/kyhau/saml2aws-multi/workflows/Secrets%20Scan/badge.svg)](https://github.com/kyhau/saml2aws-multi/actions/workflows/secrets-scan.yml)
-![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)
+![Python Version](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)
 ![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/kyhau/saml2aws-multi)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://en.wikipedia.org/wiki/MIT_License)
@@ -16,7 +16,7 @@ A helper script providing an easy-to-use command line interface to login and ret
 
 All notable changes to this project will be documented in [CHANGELOG](./CHANGELOG.md).
 
-**Supports Python 3.10, 3.11, 3.12, 3.13**
+**Supports Python 3.12, 3.13, 3.14**
 
 ## ✨ Features
 
@@ -34,7 +34,7 @@ All notable changes to this project will be documented in [CHANGELOG](./CHANGELO
 - **[Dependabot](https://docs.github.com/en/code-security/dependabot)** - Automated dependency updates ([config](.github/dependabot.yml))
 
 ### 🚀 CI/CD
-- **[GitHub Actions](https://github.com/features/actions)** - Automated testing across Python 3.10-3.13
+- **[GitHub Actions](https://github.com/features/actions)** - Automated testing across Python 3.12-3.14
 - **[Codecov](https://codecov.io/)** - Code coverage reporting
 - **Stale Issue Management** - Automatically closes inactive issues
 
@@ -70,7 +70,8 @@ Options:
 
 Commands:
   chained  List chained role profiles specified in ~/.aws/config
-  switch   Switch default profile
+  clean    Remove expired credentials from ~/.aws/credentials
+  switch   Switch default profile (shows only non-expired profiles)
   whoami   Who am I?
 ```
 
@@ -111,13 +112,21 @@ Commands:
     awslogin -l dev -l tst
     ```
 
-5. To change your `default` profile in `<user_home>/.aws/credentials`, run
+5. To remove expired credentials from `~/.aws/credentials`, run
+
+    ```
+    awslogin clean
+    ```
+
+6. To change your `default` profile in `~/.aws/credentials`, run
 
     ```
     awslogin switch
     ```
 
-6. If you have roles in different accounts with the same role names, you can use `--profile-name-format RoleName-AccountAlias`, such that the profile names will include both role name and account alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the code to `RoleName-AccountAlias`.
+    `switch` automatically hides expired profiles from the list.
+
+7. If you have roles in different accounts with the same role names, you can use `--profile-name-format RoleName-AccountAlias`, such that the profile names will include both role name and account alias.  Alternatively, you can also change `DEFAULT_PROFILE_NAME_FORMAT` in the code to `RoleName-AccountAlias`.
 
     For example, if you have role ARNs like:
     ```
@@ -137,7 +146,7 @@ Commands:
 
 Before installing, ensure you have:
 
-1. **Python 3.10+** installed
+1. **Python 3.12+** installed
 2. **[saml2aws](https://github.com/Versent/saml2aws)** installed
    - See [install-saml2aws.sh](install-saml2aws.sh) for a Linux installation script
    - For other platforms, follow the [official installation guide](https://github.com/Versent/saml2aws#install)
@@ -176,100 +185,7 @@ awslogin
 
 #### Option 3: Development Installation
 
-For contributing or development work:
-
-```bash
-# Quick setup (recommended for first-time setup)
-make setup-init
-
-# Manual setup (alternative)
-make setup-venv    # Configure Poetry virtualenv
-make install-all   # Install all dependencies
-
-# Run with Poetry
-poetry run awslogin --help
-poetry run awslogin
-
-# Or activate the virtualenv
-poetry shell
-awslogin
-
-# View all available commands
-make help
-```
-
-## 📋 Development Workflow
-
-### Common Commands
-
-```bash
-make setup-init         # First-time setup (configure, lock, install everything)
-make help               # Show all available commands
-make install-all        # Install all dependencies (main, dev, test)
-make test               # Run tests without coverage
-make test-with-coverage # Run tests with coverage
-make format-python      # Auto-format Python code
-make lint-python        # Lint Python code
-make lint-yaml          # Lint YAML files
-make pre-commit         # Run all quality checks (format, lint, test)
-make build              # Build the package
-make clean              # Clean build artifacts
-```
-
-### Running Tests
-
-```bash
-# Run tests with coverage
-make test-with-coverage
-
-# Run tests only
-make test
-
-# Format and lint code
-make format-python
-make lint-python
-make lint-yaml
-
-# Run all quality checks before committing
-make pre-commit
-```
-
-### Managing Dependencies
-
-```bash
-# Update dependencies to latest compatible versions
-make update-deps
-
-# Regenerate lock file
-make lock
-```
-
-## 🏗️ Project Structure
-
-```
-saml2aws-multi/
-├── .github/
-│   ├── workflows/        # CI/CD workflows
-│   └── dependabot.yml    # Dependency updates config
-├── saml2awsmulti/        # Main Python package
-│   ├── __init__.py
-│   ├── aws_login.py      # Main CLI logic
-│   ├── file_io.py
-│   ├── saml2aws_helper.py
-│   └── selector.py
-├── tests/                # Unit tests
-│   ├── test_aws_login.py
-│   ├── test_file_io.py
-│   ├── test_saml2aws_helper.py
-│   └── test_selector.py
-├── pyproject.toml        # Project metadata and dependencies
-├── Makefile              # Build and test commands
-├── CHANGELOG.md          # Version history and changes
-├── CODE_OF_CONDUCT.md    # Community guidelines
-├── CONTRIBUTING.md       # Contribution guidelines
-├── SECURITY.md           # Security policy
-└── README.md             # This file
-```
+For contributing or development work, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 🤝 Contributing
 

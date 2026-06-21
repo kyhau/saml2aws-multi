@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+1.3.0 - 2026-06-21
+==================
+- **Added `awslogin clean` command** to remove expired credentials from `~/.aws/credentials`
+- **Fixed credential exposure** — `saml2aws` password is now passed via stdin (not command-line args)
+- **Fixed `load_saml2aws_config`** to use `ConfigParser` instead of csv reader, correctly handling values containing `=` (e.g. URLs with query strings)
+- **Fixed `pre_select_options` duplicate entries** when a profile matches both last-selected and a keyword
+- **Updated Python support** to 3.12, 3.13, 3.14 (dropped 3.10 and 3.11)
+- **Updated dependencies**: `boto3 ^1.43`, `click ^8.4`, `pytest ^9.1`, `black ^26.5`, `flake8 ~7.3`, `yamllint ~1.38`
+- **Removed `pytest-gitignore`** (unmaintained, incompatible with pytest 9); replaced with `norecursedirs` config
+- **Configured Black** via `[tool.black]` in `pyproject.toml` with `target-version = ["py312", "py313"]`
+- **Restructured documentation**: development workflow and project structure moved from README to CONTRIBUTING
+
 1.2.0 - 2025-10-18
 ==================
 - **Modernized project structure** to match python-repo-template best practices

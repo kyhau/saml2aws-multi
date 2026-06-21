@@ -71,13 +71,12 @@ class TestSaml2AwsHelper:
 
         # Mock subprocess output
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [
-            b"Account: aws-01 (123456789012)\n",
-            b"arn:aws:iam::123456789012:role/dev\n",
-            b"Account: aws-02 (213456789012)\n",
-            b"arn:aws:iam::213456789012:role/test\n",
-        ]
-        mock_process.wait.return_value = 0
+        mock_process.communicate.return_value = (
+            b"Account: aws-01 (123456789012)\narn:aws:iam::123456789012:role/dev\n"
+            b"Account: aws-02 (213456789012)\narn:aws:iam::213456789012:role/test\n",
+            None,
+        )
+        mock_process.returncode = 0
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
@@ -89,6 +88,11 @@ class TestSaml2AwsHelper:
         ]
         assert result == expected
         mock_popen.assert_called_once()
+        # Password must be sent via stdin, not in the command
+        mock_process.communicate.assert_called_once_with(input=b"testpass\n")
+        cmd_args = mock_popen.call_args[0][0]
+        assert "--stdin-password" in cmd_args
+        assert not any("password" in arg.lower() and "stdin" not in arg for arg in cmd_args)
 
     @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
     @patch("getpass.getpass")
@@ -101,11 +105,11 @@ class TestSaml2AwsHelper:
 
         # Mock subprocess output with no account alias
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [
-            b"Account: 123456789012\n",
-            b"arn:aws:iam::123456789012:role/dev\n",
-        ]
-        mock_process.wait.return_value = 0
+        mock_process.communicate.return_value = (
+            b"Account: 123456789012\narn:aws:iam::123456789012:role/dev\n",
+            None,
+        )
+        mock_process.returncode = 0
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
@@ -123,8 +127,8 @@ class TestSaml2AwsHelper:
 
         # Mock subprocess output with no roles
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [b"Account: aws-01 (123456789012)\n"]
-        mock_process.wait.return_value = 0
+        mock_process.communicate.return_value = (b"Account: aws-01 (123456789012)\n", None)
+        mock_process.returncode = 0
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
@@ -141,11 +145,11 @@ class TestSaml2AwsHelper:
 
         # Mock subprocess output with malformed account line
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [
-            b"Account: malformed line\n",
-            b"arn:aws:iam::123456789012:role/dev\n",
-        ]
-        mock_process.wait.return_value = 0
+        mock_process.communicate.return_value = (
+            b"Account: malformed line\narn:aws:iam::123456789012:role/dev\n",
+            None,
+        )
+        mock_process.returncode = 0
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
@@ -156,13 +160,42 @@ class TestSaml2AwsHelper:
     @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
     @patch("getpass.getpass")
     @patch("subprocess.Popen")
+    def test_run_saml2aws_list_roles_account_parse_exception(
+        self, mock_popen, mock_getpass, mock_load_config, caplog
+    ):
+        mock_load_config.return_value = {"username": "testuser"}
+        mock_getpass.return_value = "testpass"
+
+        # A malformed account line with too many parts triggers the except block
+        # (ValueError: too many values to unpack). A subsequent valid account and
+        # ARN line allow normal completion.
+        mock_process = Mock()
+        mock_process.communicate.return_value = (
+            b"Account: ALIAS (123) extra\n"
+            b"Account: aws-01 (123456789012)\n"
+            b"arn:aws:iam::123456789012:role/dev\n",
+            None,
+        )
+        mock_process.returncode = 0
+        mock_popen.return_value = mock_process
+
+        with caplog.at_level("ERROR"):
+            helper = Saml2AwsHelper("config_file", None, False)
+            result = helper.run_saml2aws_list_roles()
+
+        assert result == [("arn:aws:iam::123456789012:role/dev", "aws-01")]
+        assert "Account: ALIAS (123) extra" in caplog.text
+
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
     def test_run_saml2aws_login_success(self, mock_popen, mock_getpass, mock_load_config):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
 
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [b"Login successful\n"]
-        mock_process.wait.return_value = 0
+        mock_process.communicate.return_value = (b"Login successful\n", None)
+        mock_process.returncode = 0
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
@@ -181,8 +214,8 @@ class TestSaml2AwsHelper:
         mock_getpass.return_value = "testpass"
 
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [b"Login successful\n"]
-        mock_process.wait.return_value = 0
+        mock_process.communicate.return_value = (b"Login successful\n", None)
+        mock_process.returncode = 0
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", "7200", False)
@@ -202,8 +235,8 @@ class TestSaml2AwsHelper:
         mock_getpass.return_value = "testpass"
 
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [b"Login successful\n"]
-        mock_process.wait.return_value = 0
+        mock_process.communicate.return_value = (b"Login successful\n", None)
+        mock_process.returncode = 0
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, True)
@@ -221,8 +254,8 @@ class TestSaml2AwsHelper:
         mock_getpass.return_value = "testpass"
 
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [b"Login failed\n"]
-        mock_process.wait.return_value = 1
+        mock_process.communicate.return_value = (b"Login failed\n", None)
+        mock_process.returncode = 1
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
@@ -238,25 +271,27 @@ class TestSaml2AwsHelper:
         mock_getpass.return_value = "testpass"
 
         mock_process = Mock()
-        mock_process.stdout.readlines.return_value = [b"Login successful\n"]
-        mock_process.wait.return_value = 0
+        mock_process.communicate.return_value = (b"Login successful\n", None)
+        mock_process.returncode = 0
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", "3600", True)
         helper.run_saml2aws_login("arn:aws:iam::123456789012:role/dev", "dev")
 
-        # Verify the command format
+        # Verify the command is a list (no shell=True) and contains expected args
         call_args = mock_popen.call_args[0][0]
-        expected_parts = [
-            "saml2aws login",
-            "--role=arn:aws:iam::123456789012:role/dev",
-            "-p dev",
-            "--username=testuser",
-            "--password=testpass",
-            "--skip-prompt",
-            "--session-duration=3600",
-            "--browser-autofill",
-        ]
-
-        for part in expected_parts:
-            assert part in call_args
+        assert isinstance(call_args, list)
+        assert "saml2aws" in call_args
+        assert "login" in call_args
+        assert "--role=arn:aws:iam::123456789012:role/dev" in call_args
+        assert "-p" in call_args
+        assert "dev" in call_args
+        assert "--username=testuser" in call_args
+        assert "--skip-prompt" in call_args
+        assert "--stdin-password" in call_args
+        assert "--session-duration=3600" in call_args
+        assert "--browser-autofill" in call_args
+        # Password must NOT appear in the command args
+        assert not any("testpass" in arg for arg in call_args)
+        # Password sent via stdin
+        mock_process.communicate.assert_called_once_with(input=b"testpass\n")

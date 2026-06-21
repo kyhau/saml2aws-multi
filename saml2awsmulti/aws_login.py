@@ -6,6 +6,7 @@ for multiple roles in different accounts.
 import json
 import logging
 from collections import OrderedDict
+from datetime import datetime, timezone
 from os.path import exists, join
 from pathlib import Path
 
@@ -82,7 +83,9 @@ def pre_select_options(profile_rolearn_dict, keywords):
             if k in role_arn:
                 pre_select_profiles.append(profile_name)
                 break
-    return pre_select_profiles
+
+    # Deduplicate (a profile in last-selected may also match a keyword) while preserving order
+    return list(dict.fromkeys(pre_select_profiles))
 
 
 @click.group(
@@ -194,7 +197,11 @@ def chained(from_profile):
 @main_cli.command(help="Switch default profile")
 def switch():
     cred_config = get_aws_profiles(AWS_CRED_FILE)
-    options = [profile for profile in cred_config.sections() if profile != "default"]
+    options = [
+        profile
+        for profile in cred_config.sections()
+        if profile != "default" and not _is_expired(cred_config, profile)
+    ]
     if options:
         profile = prompt_profile_selection(options)
         if profile is not None:
@@ -218,5 +225,35 @@ def whoami(profile):
         logging.error(e)
 
 
-if __name__ == "__main__":
+@main_cli.command(help="Remove expired credentials from ~/.aws/credentials")
+def clean():
+    cred_config = get_aws_profiles(AWS_CRED_FILE)
+    removed = [
+        profile
+        for profile in cred_config.sections()
+        if profile != "default" and _is_expired(cred_config, profile)
+    ]
+    if removed:
+        for profile in removed:
+            cred_config.remove_section(profile)
+        write_aws_profiles(AWS_CRED_FILE, cred_config)
+        profile_list = "\n  - ".join(removed)
+        logging.info(f"Removed {len(removed)} expired profile(s):\n  - {profile_list}")
+    else:
+        logging.info("No expired profiles found.")
+
+
+def _is_expired(cred_config, profile):
+    """Return True if the profile's x_security_token_expires is in the past."""
+    expires_str = cred_config[profile].get("x_security_token_expires")
+    if not expires_str:
+        return False
+    try:
+        return datetime.fromisoformat(expires_str) < datetime.now(timezone.utc)
+    except ValueError:
+        logging.warning(f"Could not parse expiry for profile '{profile}': {expires_str}")
+        return False
+
+
+if __name__ == "__main__":  # pragma: no cover
     main_cli()
