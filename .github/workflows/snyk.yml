@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@9adf32b1121593767fc3c057af55b55db032dc04  # v1.0.0
