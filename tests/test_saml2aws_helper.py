@@ -139,11 +139,13 @@ class TestSaml2AwsHelper:
     @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
     @patch("getpass.getpass")
     @patch("subprocess.Popen")
-    def test_run_saml2aws_list_roles_parse_error(self, mock_popen, mock_getpass, mock_load_config):
+    def test_run_saml2aws_list_roles_arn_before_account_falls_back_to_id(
+        self, mock_popen, mock_getpass, mock_load_config
+    ):
         mock_load_config.return_value = {"username": "testuser"}
         mock_getpass.return_value = "testpass"
 
-        # Mock subprocess output with malformed account line
+        # ARN appears before its Account line — account ID is used as alias fallback
         mock_process = Mock()
         mock_process.communicate.return_value = (
             b"Account: malformed line\narn:aws:iam::123456789012:role/dev\n",
@@ -154,8 +156,9 @@ class TestSaml2AwsHelper:
 
         helper = Saml2AwsHelper("config_file", None, False)
 
-        with pytest.raises(KeyError):
-            helper.run_saml2aws_list_roles()
+        result = helper.run_saml2aws_list_roles()
+
+        assert result == [("arn:aws:iam::123456789012:role/dev", "123456789012")]
 
     @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
     @patch("getpass.getpass")

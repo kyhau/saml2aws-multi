@@ -58,7 +58,7 @@ class Saml2AwsHelper:
                     logging.error(line)
             elif line.startswith("arn:"):
                 acc_id = line.split(":")[4]
-                roles.append((line, accounts_dict[acc_id]))
+                roles.append((line, accounts_dict.get(acc_id, acc_id)))
 
         retval = p.returncode
         logging.debug(f"Response Code: {retval}")
