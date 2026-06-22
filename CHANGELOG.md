@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+1.3.1 - 2026-06-22
+==================
+- **Fixed compatibility with saml2aws < 2.37.0** — `--stdin-password` is now detected at runtime via `saml2aws login --help`; older binaries fall back to passing the password as a CLI argument
+
 1.3.0 - 2026-06-21
 ==================
 - **Added `awslogin clean` command** to remove expired credentials from `~/.aws/credentials`

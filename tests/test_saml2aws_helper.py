@@ -13,6 +13,7 @@ class TestSaml2AwsHelper:
         assert helper._browser_autofill is True
         assert helper._uname is None
         assert helper._upass is None
+        assert helper._stdin_password_supported is None
 
     @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
     @patch("builtins.input")
@@ -80,6 +81,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
+        helper._stdin_password_supported = True
         result = helper.run_saml2aws_list_roles()
 
         expected = [
@@ -113,6 +115,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
+        helper._stdin_password_supported = True
         result = helper.run_saml2aws_list_roles()
 
         expected = [("arn:aws:iam::123456789012:role/dev", "None")]
@@ -132,6 +135,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
+        helper._stdin_password_supported = True
 
         with pytest.raises(ValueError, match="Failed to retrieve roles with saml2aws"):
             helper.run_saml2aws_list_roles()
@@ -155,6 +159,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
+        helper._stdin_password_supported = True
 
         result = helper.run_saml2aws_list_roles()
 
@@ -184,6 +189,7 @@ class TestSaml2AwsHelper:
 
         with caplog.at_level("ERROR"):
             helper = Saml2AwsHelper("config_file", None, False)
+            helper._stdin_password_supported = True
             result = helper.run_saml2aws_list_roles()
 
         assert result == [("arn:aws:iam::123456789012:role/dev", "aws-01")]
@@ -202,6 +208,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
+        helper._stdin_password_supported = True
         result = helper.run_saml2aws_login("arn:aws:iam::123456789012:role/dev", "dev")
 
         assert result == 0
@@ -222,6 +229,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", "7200", False)
+        helper._stdin_password_supported = True
         helper.run_saml2aws_login("arn:aws:iam::123456789012:role/dev", "dev")
 
         # Check that session duration was included in command
@@ -243,6 +251,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, True)
+        helper._stdin_password_supported = True
         helper.run_saml2aws_login("arn:aws:iam::123456789012:role/dev", "dev")
 
         # Check that browser autofill was included in command
@@ -262,6 +271,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", None, False)
+        helper._stdin_password_supported = True
         result = helper.run_saml2aws_login("arn:aws:iam::123456789012:role/dev", "dev")
 
         assert result == 1
@@ -279,6 +289,7 @@ class TestSaml2AwsHelper:
         mock_popen.return_value = mock_process
 
         helper = Saml2AwsHelper("config_file", "3600", True)
+        helper._stdin_password_supported = True
         helper.run_saml2aws_login("arn:aws:iam::123456789012:role/dev", "dev")
 
         # Verify the command is a list (no shell=True) and contains expected args
@@ -298,3 +309,82 @@ class TestSaml2AwsHelper:
         assert not any("testpass" in arg for arg in call_args)
         # Password sent via stdin
         mock_process.communicate.assert_called_once_with(input=b"testpass\n")
+
+    @patch("subprocess.run")
+    def test_supports_stdin_password_true(self, mock_run):
+        mock_run.return_value = Mock(
+            stdout="--stdin-password  Read password from stdin\n", stderr=""
+        )
+        helper = Saml2AwsHelper("config_file", None, False)
+        assert helper._supports_stdin_password() is True
+        mock_run.assert_called_once_with(
+            ["saml2aws", "login", "--help"], capture_output=True, text=True
+        )
+
+    @patch("subprocess.run")
+    def test_supports_stdin_password_false(self, mock_run):
+        mock_run.return_value = Mock(stdout="--password  The password\n", stderr="")
+        helper = Saml2AwsHelper("config_file", None, False)
+        assert helper._supports_stdin_password() is False
+
+    @patch("subprocess.run")
+    def test_supports_stdin_password_cached(self, mock_run):
+        mock_run.return_value = Mock(stdout="--stdin-password\n", stderr="")
+        helper = Saml2AwsHelper("config_file", None, False)
+        helper._supports_stdin_password()
+        helper._supports_stdin_password()
+        mock_run.assert_called_once()
+
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
+    def test_run_saml2aws_list_roles_fallback_password_in_args(
+        self, mock_popen, mock_getpass, mock_load_config
+    ):
+        mock_load_config.return_value = {"username": "testuser"}
+        mock_getpass.return_value = "testpass"
+
+        mock_process = Mock()
+        mock_process.communicate.return_value = (
+            b"Account: aws-01 (123456789012)\narn:aws:iam::123456789012:role/dev\n",
+            None,
+        )
+        mock_process.returncode = 0
+        mock_popen.return_value = mock_process
+
+        helper = Saml2AwsHelper("config_file", None, False)
+        helper._stdin_password_supported = False
+        result = helper.run_saml2aws_list_roles()
+
+        assert result == [("arn:aws:iam::123456789012:role/dev", "aws-01")]
+        cmd_args = mock_popen.call_args[0][0]
+        assert "--stdin-password" not in cmd_args
+        assert "--password=testpass" in cmd_args
+        # Password passed via args, not stdin
+        mock_process.communicate.assert_called_once_with()
+
+    @patch("saml2awsmulti.saml2aws_helper.load_saml2aws_config")
+    @patch("getpass.getpass")
+    @patch("subprocess.Popen")
+    def test_run_saml2aws_login_fallback_password_in_args(
+        self, mock_popen, mock_getpass, mock_load_config
+    ):
+        mock_load_config.return_value = {"username": "testuser"}
+        mock_getpass.return_value = "testpass"
+
+        mock_process = Mock()
+        mock_process.communicate.return_value = (b"Login successful\n", None)
+        mock_process.returncode = 0
+        mock_popen.return_value = mock_process
+
+        helper = Saml2AwsHelper("config_file", "3600", True)
+        helper._stdin_password_supported = False
+        helper.run_saml2aws_login("arn:aws:iam::123456789012:role/dev", "dev")
+
+        cmd_args = mock_popen.call_args[0][0]
+        assert "--stdin-password" not in cmd_args
+        assert "--password=testpass" in cmd_args
+        assert "--session-duration=3600" in cmd_args
+        assert "--browser-autofill" in cmd_args
+        # Password passed via args, not stdin
+        mock_process.communicate.assert_called_once_with()
