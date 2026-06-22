@@ -150,6 +150,7 @@ Before installing, ensure you have:
 2. **[saml2aws](https://github.com/Versent/saml2aws)** installed
    - See [install-saml2aws.sh](install-saml2aws.sh) for a Linux installation script
    - For other platforms, follow the [official installation guide](https://github.com/Versent/saml2aws#install)
+   - saml2aws ≥ 2.37.0 is recommended (supports `--stdin-password` for secure credential passing); older versions are supported via automatic fallback
 3. **saml2aws config file** (`~/.saml2aws`) - Run `saml2aws configure` to create
 
 ### Installation Options
